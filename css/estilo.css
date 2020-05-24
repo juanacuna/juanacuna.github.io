@@ -14,7 +14,7 @@ a:hover, a:focus {
 } 
 a{
 	text-decoration: none !important;
-	color:#68f0a0;
+	color: #ffebaf
 }
 .extend{
   font-size: 40px;
@@ -56,4 +56,25 @@ button {
   left: 0;
   z-index: 1030;
   box-shadow: 5px;
+}
+.format{
+      color: #ffebaf;
+      z-index: 1;
+      padding: 100px 10px;
+      max-width: 100%;
+      min-height: 100px;
+      height: auto;
+      width: 100%;
+      overflow: auto;
+}
+#about p {
+  text-align: justify;
+  text-justify: inter-word;
+  font-size: 25px;
+}
+.gallery {
+
+  column-count: 3;
+ 
+
 }
