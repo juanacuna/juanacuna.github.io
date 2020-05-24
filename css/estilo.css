@@ -1,0 +1,59 @@
+@import url("https://use.typekit.net/hvn0skx.css");
+
+body {
+    font-family: megrim, sans-serif; 
+    font-weight: 500;
+    background-color: #222831;
+    margin: 0;
+    padding: 0;
+    line-height: 1 !important;
+}
+a:hover, a:focus {
+    background-color: transparent;
+		color: #fd7014;
+} 
+a{
+	text-decoration: none !important;
+	color:#68f0a0;
+}
+.extend{
+  font-size: 40px;
+	display: inline;
+}
+.extend:after{
+	width: 0px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  transition: .3s linear;
+  
+}
+.extend:nth-child(1):after {
+  content: 'uan';
+}
+.extend:nth-child(2):after {
+  content: 'Carlos';
+}
+.extend:nth-child(3):after {
+    content: 'cuña';
+}
+a:hover .extend:nth-child(1):after {
+  width: 76px;
+}
+a:hover .extend:nth-child(2):after {
+  width: 138px;
+}
+a:hover .extend:nth-child(3):after {
+  width: 90px;
+}
+button {
+  background-color: #393e46; 
+  border-radius: 15px;
+}
+.navbar-fixed-top {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  box-shadow: 5px;
+}
