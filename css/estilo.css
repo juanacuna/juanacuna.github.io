@@ -1,5 +1,8 @@
 @import url("https://use.typekit.net/hvn0skx.css");
 
+html {
+  scroll-behavior: smooth;
+}
 body {
     font-family: megrim, sans-serif; 
     font-weight: 500;
@@ -14,7 +17,8 @@ a:hover, a:focus {
 } 
 a{
 	text-decoration: none !important;
-	color: #ffebaf
+  color: #ffebaf;
+  transition: all 0.3s ease 0s;
 }
 .extend{
   font-size: 40px;
@@ -97,3 +101,102 @@ button {
   column-width: 100%;
   }
   }
+
+h2:after,.tools .shield figcaption,.tools .shield:after{
+    position:absolute
+}
+h2,h2 strong,.tools .shield{
+    position:relative
+}
+.tools{
+    display:flex
+}
+h2,h2 strong,h2 span{
+    vertical-align:middle
+}
+.skills{
+    padding:15px
+}
+h2{
+    padding:10px;
+    padding-left:25px;
+    color:#ccc;
+    margin:0
+}
+h2 strong{
+    z-index:2;
+    background:#24282f;
+    padding:4px 8px
+}
+h2 span{
+    font-size:.7em;
+    color:#aaa;
+    margin-left:10px
+}
+h2:after{
+    content:'';
+    z-index:1;
+    bottom:50%;
+    margin-bottom:-2px;
+    height:2px;
+    left:0;
+    right:0;
+    background:#373d47
+}
+.tools{
+    flex-flow:row wrap
+}
+.tools .shield{
+    margin:auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width:144px;
+    height:164px;
+    overflow:hidden;
+    box-shadow:0 5px 10px rgba(0,0,0,0.8);
+    transform-origin:center top;
+    transform-style:preserve-3d;
+    transform:translateZ(0);
+    transition:.3s
+}
+.tools .shield img{
+    width:100%;
+    min-height:100%
+}
+.tools .shield figcaption{
+  text-align: center;
+    bottom:0;
+    left:0;
+    right:0;
+    padding-bottom:142px;
+    font-size:20px;
+    font-weight: 800;
+    background:none;
+    color:#ffebaf;
+    transform:translateY(100%);
+    transition:.3s
+}
+.tools .shield:after{
+    content:'';
+    z-index:10;
+    width:200%;
+    height:100%;
+    top:-90%;
+    left:-20px;
+    opacity:.1;
+    transform:rotate(45deg);
+    background:linear-gradient(to top,transparent,#fff 15%,rgba(255,255,255,0.5));
+    transition:.3s
+}
+.tools .shield:hover,.tools .shield:focus,.tools .shield:active{
+    box-shadow:0 8px 16px 3px rgba(0,0,0,0.6);
+    transform:translateY(-3px) scale(1.05) rotateX(15deg)
+}
+.tools .shield:hover figcaption,.tools .shield:focus figcaption,.tools .shield:active figcaption{
+    transform:none
+}
+.tools .shield:hover:after,.tools .shield:focus:after,.tools .shield:active:after{
+    transform:rotate(25deg);
+    top:-40%;
+    opacity:.15
+}
