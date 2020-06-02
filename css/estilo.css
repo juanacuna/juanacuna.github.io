@@ -6,10 +6,9 @@ html {
 body {
     font-family: megrim, sans-serif; 
     font-weight: 500;
-    background-color: #222831;
+    background-color: #1f242b;
     margin: 0;
     padding: 0;
-    line-height: 1 !important;
 }
 a:hover, a:focus {
     background-color: transparent;
@@ -168,7 +167,7 @@ h2:after{
     bottom:0;
     left:0;
     right:0;
-    padding-bottom:142px;
+    padding-bottom:136px;
     font-size:20px;
     font-weight: 800;
     background:none;
