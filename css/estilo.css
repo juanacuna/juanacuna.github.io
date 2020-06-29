@@ -20,7 +20,7 @@ a{
   transition: all 0.3s ease 0s;
 }
 .extend{
-  font-size: 40px;
+  font-size: 35px;
 	display: inline;
 }
 .extend:after{
@@ -41,13 +41,13 @@ a{
     content: 'cuña';
 }
 a:hover .extend:nth-child(1):after {
-  width: 76px;
+  width: 65px;
 }
 a:hover .extend:nth-child(2):after {
-  width: 138px;
+  width: 118px;
 }
 a:hover .extend:nth-child(3):after {
-  width: 90px;
+  width: 78px;
 }
 button {
   background-color: #393e46; 
@@ -58,7 +58,6 @@ button {
   right: 0;
   left: 0;
   z-index: 1030;
-  box-shadow: 5px;
 }
 .format{
       color: #ffebaf;
