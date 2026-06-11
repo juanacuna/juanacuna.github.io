@@ -108,12 +108,12 @@
         // Si descargas esto para tu propio Github Pages, reemplaza `fallbackConfig` con 
         // los datos reales de tu proyecto de Firebase (Firebase Console -> Project Settings).
         const fallbackConfig = {
-            apiKey: "AIzaSyBPtzJQvq77TzCva3oevKoe435aGlu6O7E",
-            authDomain: "fifa2026-9a835.firebaseapp.com",
-            projectId: "fifa2026-9a835",
-            storageBucket: "fifa2026-9a835.firebasestorage.app",
-            messagingSenderId: "669519927527",
-            appId: "1:669519927527:web:0f9ccfc29b808c98146a42"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
         };
 
         // Entorno Inmersivo variables
@@ -138,6 +138,14 @@
             predictions: []
         };
         let activeUserId = null; // ID del usuario autenticado (uid de Google)
+        let activeUserEmail = null; // Correo del usuario autenticado
+        
+        // ==========================================
+        // CONFIGURACIÓN DE ADMINISTRADOR
+        // ¡IMPORTANTE! Reemplaza este correo con tu cuenta real de Google
+        // ==========================================
+        const adminEmails = ['tu_correo@gmail.com']; 
+
         let currentTab = 'ajustes'; // Iniciamos en ajustes para el login
         let unsubs = [];
 
@@ -208,6 +216,7 @@
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         activeUserId = user.uid;
+                        activeUserEmail = user.email;
                         await ensureUserExists(user);
                         setupRealtimeListeners();
                         if (currentTab === 'ajustes') {
@@ -215,6 +224,7 @@
                         }
                     } else {
                         activeUserId = null;
+                        activeUserEmail = null;
                         document.getElementById('loadingOverlay').classList.add('hidden');
                         if (currentTab !== 'ajustes') {
                              switchTab('ajustes');
@@ -434,27 +444,30 @@
 
         function renderResultados() {
             const container = document.getElementById('content-resultados');
+            const isAdmin = adminEmails.includes(activeUserEmail);
             
             if (globalData.matches.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-calendar-xmark text-4xl mb-3"></i><p>No hay partidos registrados. Ve a Ajustes para crearlos.</p></div>`;
+                container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-calendar-xmark text-4xl mb-3"></i><p>No hay partidos registrados. El administrador debe crearlos.</p></div>`;
                 return;
             }
 
             let html = `<div class="space-y-4">
+                ${isAdmin ? `
                 <div class="bg-blue-900/30 border border-blue-800 p-4 rounded-lg text-sm text-blue-200 mb-6 flex items-start">
-                    <i class="fa-solid fa-info-circle mt-1 mr-3 text-blue-400"></i>
-                    <p>Ingresa los resultados reales de los partidos aquí. Al guardarlos, el sistema recalculará los puntos de todos los participantes automáticamente.</p>
-                </div>
+                    <i class="fa-solid fa-user-shield mt-1 mr-3 text-blue-400"></i>
+                    <p><strong>Panel de Administrador:</strong> Ingresa los resultados reales o bloquea los pronósticos de cada partido para evitar que los usuarios hagan trampas antes de iniciar.</p>
+                </div>` : ''}
             `;
 
             globalData.matches.forEach(match => {
                 const sA = match.scoreA !== null ? match.scoreA : '';
                 const sB = match.scoreB !== null ? match.scoreB : '';
                 const isFinished = sA !== '' && sB !== '';
+                const isLocked = match.isLocked || false;
 
                 html += `
-                    <div class="bg-slate-800 p-4 rounded-xl shadow border border-slate-700 relative overflow-hidden">
-                        ${isFinished ? '<div class="absolute top-0 right-0 bg-emerald-600 text-xs px-2 py-1 rounded-bl-lg font-semibold shadow-sm">FINALIZADO</div>' : ''}
+                    <div class="bg-slate-800 p-4 rounded-xl shadow border ${isLocked ? 'border-orange-900/50' : 'border-slate-700'} relative overflow-hidden">
+                        ${isFinished ? '<div class="absolute top-0 right-0 bg-emerald-600 text-xs px-2 py-1 rounded-bl-lg font-semibold shadow-sm">FINALIZADO</div>' : (isLocked ? '<div class="absolute top-0 right-0 bg-orange-600 text-xs px-2 py-1 rounded-bl-lg font-semibold shadow-sm"><i class="fa-solid fa-lock mr-1"></i> BLOQUEADO</div>' : '')}
                         
                         <div class="text-center text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">${match.stage} - ${match.date}</div>
                         
@@ -462,19 +475,30 @@
                             <div class="flex-1 text-right font-bold text-lg text-slate-200 truncate pr-2">${match.teamA}</div>
                             
                             <div class="flex items-center space-x-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                ${isAdmin ? `
                                 <input type="number" id="res_${match.id}_A" value="${sA}" class="w-12 h-10 bg-slate-800 text-white text-center font-bold text-xl rounded focus:ring-2 focus:ring-emerald-500 outline-none" min="0">
                                 <span class="text-slate-500 font-bold">-</span>
                                 <input type="number" id="res_${match.id}_B" value="${sB}" class="w-12 h-10 bg-slate-800 text-white text-center font-bold text-xl rounded focus:ring-2 focus:ring-emerald-500 outline-none" min="0">
+                                ` : `
+                                <div class="w-12 h-10 flex items-center justify-center bg-slate-800 text-white font-bold text-xl rounded">${sA}</div>
+                                <span class="text-slate-500 font-bold">-</span>
+                                <div class="w-12 h-10 flex items-center justify-center bg-slate-800 text-white font-bold text-xl rounded">${sB}</div>
+                                `}
                             </div>
                             
                             <div class="flex-1 text-left font-bold text-lg text-slate-200 truncate pl-2">${match.teamB}</div>
                         </div>
 
-                        <div class="mt-4 flex justify-center">
-                            <button onclick="saveResult('${match.id}')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-sm font-semibold rounded-lg transition shadow-md flex items-center">
-                                <i class="fa-solid fa-save mr-2"></i> Guardar Resultado Real
+                        ${isAdmin ? `
+                        <div class="mt-4 flex justify-center space-x-3 border-t border-slate-700/50 pt-4">
+                            <button onclick="saveResult('${match.id}')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-sm font-semibold rounded-lg transition shadow-md flex items-center text-emerald-400">
+                                <i class="fa-solid fa-save mr-2"></i> Guardar Final
+                            </button>
+                            <button onclick="toggleLock('${match.id}', ${isLocked})" class="px-4 py-2 ${isLocked ? 'bg-orange-900/50 hover:bg-orange-900/80 text-orange-400' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'} text-sm font-semibold rounded-lg transition shadow-md flex items-center border border-slate-600">
+                                <i class="fa-solid ${isLocked ? 'fa-unlock' : 'fa-lock'} mr-2"></i> ${isLocked ? 'Desbloquear Pronósticos' : 'Bloquear Pronósticos'}
                             </button>
                         </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -506,8 +530,7 @@
             }
 
             const activeUser = globalData.users.find(u => u.id === activeUserId);
-
-            if (!activeUser) return; // Esperar a que cargue el usuario
+            if (!activeUser) return;
 
             let html = `
                 <div class="mb-6 bg-emerald-900/20 border border-emerald-800 p-4 rounded-lg flex items-center">
@@ -524,20 +547,20 @@
             `;
 
             globalData.matches.forEach(match => {
-                // Buscar si ya hay prediccion
                 const pred = globalData.predictions.find(p => p.matchId === match.id && p.userId === activeUserId);
                 const sA = pred ? pred.scoreA : '';
                 const sB = pred ? pred.scoreB : '';
                 const hasPred = pred !== undefined;
 
-                // Si el partido ya tiene resultado oficial, bloqueamos la predicción
                 const isFinished = match.scoreA !== null && match.scoreA !== '';
+                const isLocked = match.isLocked || false;
+                const cannotEdit = isFinished || isLocked;
 
                 const borderClass = hasPred ? 'border-emerald-500/50 bg-slate-800 shadow-[0_0_10px_rgba(16,185,129,0.1)]' : 'border-slate-700 bg-slate-800';
 
                 html += `
                     <div class="p-4 rounded-xl border ${borderClass} relative transition-all">
-                        ${isFinished ? '<div class="absolute inset-0 bg-slate-900/60 z-10 flex items-center justify-center rounded-xl backdrop-blur-[1px]"><span class="bg-red-600 text-white px-3 py-1 rounded font-bold text-sm shadow-lg border border-red-500"><i class="fa-solid fa-lock mr-2"></i>PARTIDO CERRADO</span></div>' : ''}
+                        ${cannotEdit ? `<div class="absolute inset-0 bg-slate-900/70 z-10 flex items-center justify-center rounded-xl backdrop-blur-[2px]"><span class="${isFinished ? 'bg-red-600 border-red-500' : 'bg-orange-600 border-orange-500'} text-white px-3 py-1 rounded font-bold text-sm shadow-lg border"><i class="fa-solid fa-lock mr-2"></i>${isFinished ? 'PARTIDO CERRADO' : 'PRONÓSTICOS BLOQUEADOS'}</span></div>` : ''}
                         
                         <div class="text-center text-xs text-slate-400 mb-2 uppercase tracking-wide">${match.stage}</div>
                         
@@ -545,16 +568,16 @@
                             <div class="text-right font-bold w-1/3 text-lg md:text-xl truncate text-slate-200">${match.teamA}</div>
                             
                             <div class="w-1/3 flex justify-center items-center space-x-2">
-                                <input type="number" id="pred_${match.id}_A" value="${sA}" class="w-12 h-12 bg-slate-900 border border-slate-600 text-white text-center font-bold text-xl rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition" min="0">
+                                <input type="number" id="pred_${match.id}_A" value="${sA}" ${cannotEdit ? 'disabled' : ''} class="w-12 h-12 bg-slate-900 border border-slate-600 text-white text-center font-bold text-xl rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition disabled:opacity-50" min="0">
                                 <span class="text-slate-500 font-bold">-</span>
-                                <input type="number" id="pred_${match.id}_B" value="${sB}" class="w-12 h-12 bg-slate-900 border border-slate-600 text-white text-center font-bold text-xl rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition" min="0">
+                                <input type="number" id="pred_${match.id}_B" value="${sB}" ${cannotEdit ? 'disabled' : ''} class="w-12 h-12 bg-slate-900 border border-slate-600 text-white text-center font-bold text-xl rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition disabled:opacity-50" min="0">
                             </div>
                             
                             <div class="text-left font-bold w-1/3 text-lg md:text-xl truncate text-slate-200">${match.teamB}</div>
                         </div>
 
                         <div class="mt-4 text-center">
-                            <button onclick="savePrediction('${match.id}')" class="px-6 py-2 ${hasPred ? 'bg-slate-700 hover:bg-slate-600' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-sm font-bold rounded-full transition-colors shadow-md">
+                            <button onclick="savePrediction('${match.id}')" ${cannotEdit ? 'disabled' : ''} class="px-6 py-2 ${hasPred ? 'bg-slate-700 hover:bg-slate-600' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-sm font-bold rounded-full transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed relative z-20">
                                 ${hasPred ? '<i class="fa-solid fa-check text-emerald-400 mr-2"></i>Actualizar' : 'Guardar Pronóstico'}
                             </button>
                         </div>
@@ -566,8 +589,27 @@
             container.innerHTML = html;
         }
 
+        window.toggleLock = async function(matchId, currentState) {
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) { 
+                showToast("Acceso denegado: Solo el administrador puede bloquear partidos.", "error"); 
+                return; 
+            }
+
+            try {
+                const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId);
+                await updateDoc(matchRef, { isLocked: !currentState });
+                showToast(!currentState ? "Pronósticos bloqueados" : "Pronósticos desbloqueados", "warning");
+            } catch (error) {
+                console.error("Error al cambiar estado:", error);
+                showToast("Error al actualizar el estado", "error");
+            }
+        };
+
         window.saveResult = async function(matchId) {
-            if (!auth.currentUser) { showToast("Error de conexión", "error"); return; }
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) { 
+                showToast("Acceso denegado", "error"); 
+                return; 
+            }
 
             const valA = document.getElementById(`res_${matchId}_A`).value;
             const valB = document.getElementById(`res_${matchId}_B`).value;
@@ -592,6 +634,13 @@
                 return;
             }
 
+            // Seguridad extra en cliente
+            const match = globalData.matches.find(m => m.id === matchId);
+            if (match && (match.isLocked || match.scoreA !== null)) {
+                 showToast("Este partido ya está bloqueado para pronósticos", "error");
+                 return;
+            }
+
             const valA = document.getElementById(`pred_${matchId}_A`).value;
             const valB = document.getElementById(`pred_${matchId}_B`).value;
 
@@ -601,8 +650,6 @@
             }
 
             try {
-                // Buscamos si ya existe el documento para actualizarlo
-                // En la nueva estructura, usamos un ID predecible para la predicción
                 const predId = `${matchId}_${activeUserId}`;
                 const predRef = doc(db, 'artifacts', appId, 'public', 'data', 'predictions', predId);
                 
@@ -612,7 +659,7 @@
                     scoreA: parseInt(valA),
                     scoreB: parseInt(valB),
                     timestamp: Date.now()
-                }, { merge: true }); // Usamos setDoc con merge para crear o actualizar
+                }, { merge: true }); 
                 
                 showToast("Pronóstico guardado exitosamente");
             } catch (error) {
@@ -636,8 +683,9 @@
                                 : `<div class="w-20 h-20 rounded-full mx-auto mb-4 bg-emerald-600 flex items-center justify-center text-3xl text-white font-bold shadow-lg">${activeUser.name.charAt(0).toUpperCase()}</div>`
                             }
                             <h2 class="text-xl font-bold text-white mb-1">${activeUser.name}</h2>
-                            <p class="text-sm text-slate-400 mb-6">${activeUser.email}</p>
-                            
+                            <p class="text-sm text-slate-400 mb-2">${activeUser.email}</p>
+                            ${adminEmails.includes(activeUserEmail) ? '<span class="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded-full mb-4"><i class="fa-solid fa-shield mr-1"></i> Administrador</span>' : '<span class="inline-block bg-slate-600 text-slate-300 text-xs px-2 py-1 rounded-full mb-4">Participante</span>'}
+                            <br>
                             <button onclick="logout()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-full transition flex items-center justify-center mx-auto">
                                 <i class="fa-solid fa-right-from-bracket mr-2"></i> Cerrar Sesión
                             </button>
@@ -665,14 +713,14 @@
                     <!-- SECCIÓN DE AUTENTICACIÓN -->
                     ${authSection}
 
-                    <!-- ADMINISTRACION DE PARTIDOS (Solo visible si está logueado, idealmente deberías tener un rol de admin, pero por ahora todos pueden) -->
-                    ${activeUserId ? `
-                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-md">
-                        <div class="flex items-center mb-4 text-purple-400">
+                    <!-- ADMINISTRACION DE PARTIDOS -->
+                    ${(activeUserId && adminEmails.includes(activeUserEmail)) ? `
+                    <div class="bg-slate-800 p-6 rounded-xl border border-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                        <div class="flex items-center mb-4 text-blue-400">
                             <i class="fa-solid fa-calendar-plus text-2xl mr-3"></i>
-                            <h2 class="text-xl font-bold text-white">Administración de Partidos</h2>
+                            <h2 class="text-xl font-bold text-white">Panel de Control (Admin)</h2>
                         </div>
-                        <p class="text-sm text-slate-400 mb-4">Añade nuevos encuentros al torneo.</p>
+                        <p class="text-sm text-slate-400 mb-4">Crea nuevos encuentros para el torneo.</p>
                         
                         <div class="space-y-3">
                             <input type="text" id="newMatchStage" placeholder="Fase (Ej: Grupo A, Octavos...)" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white">
@@ -684,7 +732,7 @@
                                 <input type="text" id="newMatchTeamB" placeholder="Equipo Visitante" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-white text-center">
                             </div>
 
-                            <button onclick="createMatch()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded mt-4 transition flex items-center justify-center">
+                            <button onclick="createMatch()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded mt-4 transition flex items-center justify-center">
                                 <i class="fa-solid fa-plus mr-2"></i> Guardar Partido
                             </button>
                             
@@ -695,7 +743,15 @@
                             ` : ''}
                         </div>
                     </div>
+                    ` : `
+                    ${activeUserId ? `
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center justify-center text-center opacity-70">
+                         <i class="fa-solid fa-shield-halved text-5xl text-slate-600 mb-4"></i>
+                         <h3 class="text-xl font-bold text-slate-300">Zona Restringida</h3>
+                         <p class="text-slate-500 text-sm mt-2 max-w-xs">Solo los administradores pueden añadir partidos o modificar los resultados del torneo.</p>
+                    </div>
                     ` : ''}
+                    `}
                 </div>
             `;
         }
@@ -733,7 +789,10 @@
         };
 
         window.createMatch = async function() {
-            if (!auth.currentUser) return;
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) {
+                showToast("Acceso denegado", "error"); 
+                return; 
+            }
             
             const stage = document.getElementById('newMatchStage').value.trim();
             const date = document.getElementById('newMatchDate').value;
@@ -754,6 +813,7 @@
                     teamB,
                     scoreA: null,
                     scoreB: null,
+                    isLocked: false,
                     createdAt: Date.now()
                 });
                 
@@ -767,7 +827,7 @@
         };
 
         window.loadSampleMatches = async function() {
-            if (!auth.currentUser) return;
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) return;
             const samples = [
                 { stage: "Juego Inaugural", date: "2026-06-11", teamA: "México", teamB: "Por Definir" },
                 { stage: "Grupo B", date: "2026-06-12", teamA: "Canadá", teamB: "Por Definir" },
@@ -783,6 +843,7 @@
                         ...match,
                         scoreA: null,
                         scoreB: null,
+                        isLocked: false,
                         createdAt: Date.now()
                     });
                 }
