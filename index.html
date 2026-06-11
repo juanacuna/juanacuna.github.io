@@ -85,11 +85,11 @@
         </div>
 
         <!-- Tab Contents -->
-        <div id="content-ranking" class="tab-content fade-in"></div>
+        <div id="content-ranking" class="tab-content hidden fade-in"></div>
         <div id="content-resultados" class="tab-content hidden fade-in"></div>
         <div id="content-pronosticos" class="tab-content hidden fade-in"></div>
         <div id="content-normas" class="tab-content hidden fade-in"></div>
-        <div id="content-ajustes" class="tab-content hidden fade-in"></div>
+        <div id="content-ajustes" class="tab-content fade-in"></div> <!-- Hacemos ajustes la pestaña principal para el login -->
 
     </main>
 
@@ -98,8 +98,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Importamos GoogleAuthProvider y signInWithPopup
+        import { getAuth, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // CONFIGURACIÓN PARA GITHUB PAGES
@@ -107,12 +108,12 @@
         // Si descargas esto para tu propio Github Pages, reemplaza `fallbackConfig` con 
         // los datos reales de tu proyecto de Firebase (Firebase Console -> Project Settings).
         const fallbackConfig = {
-            apiKey: "AIzaSyBPtzJQvq77TzCva3oevKoe435aGlu6O7E",
-            authDomain: "fifa2026-9a835.firebaseapp.com",
-            projectId: "fifa2026-9a835",
-            storageBucket: "fifa2026-9a835.firebasestorage.app",
-            messagingSenderId: "669519927527",
-            appId: "1:669519927527:web:0f9ccfc29b808c98146a42"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
         };
 
         // Entorno Inmersivo variables
@@ -130,14 +131,14 @@
         // ==========================================
         // ESTADO GLOBAL DE LA APLICACIÓN
         // ==========================================
-        let app, db, auth;
+        let app, db, auth, googleProvider;
         let globalData = {
             users: [],
             matches: [],
             predictions: []
         };
-        let activeUserId = null; // ID del usuario actual que está usando el dispositivo
-        let currentTab = 'ranking';
+        let activeUserId = null; // ID del usuario autenticado (uid de Google)
+        let currentTab = 'ajustes'; // Iniciamos en ajustes para el login
         let unsubs = [];
 
         // Sistema de notificaciones (Reemplazo seguro de alert())
@@ -201,14 +202,32 @@
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
+                googleProvider = new GoogleAuthProvider();
 
-                if (typeof __initial_auth_token !== 'undefined') {
+                // Escuchar cambios en el estado de autenticación
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        activeUserId = user.uid;
+                        await ensureUserExists(user);
+                        setupRealtimeListeners();
+                        if (currentTab === 'ajustes') {
+                            switchTab('ranking'); // Ir al ranking una vez logueado
+                        }
+                    } else {
+                        activeUserId = null;
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        if (currentTab !== 'ajustes') {
+                             switchTab('ajustes');
+                        } else {
+                             renderAjustes(); // Forzar render de ajustes para mostrar botón de login
+                        }
+                    }
+                });
+
+                // En el entorno inmersivo, podríamos tener un token inicial
+                if (typeof __initial_auth_token !== 'undefined' && !auth.currentUser) {
                     await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
                 }
-
-                setupRealtimeListeners();
 
             } catch (error) {
                 console.error("Error inicializando Firebase:", error);
@@ -227,7 +246,36 @@
             return collection(db, 'artifacts', appId, 'public', 'data', colName);
         }
 
+        async function ensureUserExists(authUser) {
+            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', authUser.uid);
+            const userSnap = await getDoc(userRef);
+            
+            const userData = {
+                id: authUser.uid,
+                name: authUser.displayName || 'Participante',
+                photoURL: authUser.photoURL || '',
+                email: authUser.email || '',
+                lastLogin: Date.now()
+            };
+
+            if (!userSnap.exists()) {
+                userData.createdAt = Date.now();
+                await setDoc(userRef, userData);
+            } else {
+                // Actualizar info en caso de que haya cambiado en Google
+                await updateDoc(userRef, {
+                    name: userData.name,
+                    photoURL: userData.photoURL,
+                    lastLogin: userData.lastLogin
+                });
+            }
+        }
+
         function setupRealtimeListeners() {
+            // Limpiar listeners anteriores si existen
+            unsubs.forEach(unsub => unsub());
+            unsubs = [];
+
             const usersRef = getCollectionRef('users');
             const matchesRef = getCollectionRef('matches');
             const predictionsRef = getCollectionRef('predictions');
@@ -255,17 +303,23 @@
                     updateUI();
                 }, (error) => console.error("Error predictions:", error))
             );
+            
+            // Ocultar loading
+            document.getElementById('loadingOverlay').classList.add('hidden');
         }
 
         function updateUI() {
-            document.getElementById('loadingOverlay').classList.add('hidden');
-            
             // Actualizar display de usuario activo
             const userDisplay = document.getElementById('currentUserDisplay');
-            if (activeUserId) {
+            if (activeUserId && globalData.users.length > 0) {
                 const user = globalData.users.find(u => u.id === activeUserId);
-                document.getElementById('currentUserName').textContent = user ? user.name : 'Desconocido';
-                userDisplay.classList.remove('hidden');
+                if (user) {
+                    document.getElementById('currentUserName').innerHTML = `
+                        ${user.photoURL ? `<img src="${user.photoURL}" class="w-6 h-6 rounded-full inline-block mr-2 border border-emerald-500">` : `<i class="fa-solid fa-user text-emerald-400 mr-2"></i>`}
+                        ${user.name}
+                    `;
+                    userDisplay.classList.remove('hidden');
+                }
             } else {
                 userDisplay.classList.add('hidden');
             }
@@ -358,11 +412,15 @@
                 else badge = `<span class="text-slate-500 font-bold">${index + 1}</span>`;
 
                 const rowClass = user.id === activeUserId ? 'bg-slate-700/50 border-l-4 border-emerald-500' : 'hover:bg-slate-800/80';
+                
+                const avatar = user.photoURL 
+                    ? `<img src="${user.photoURL}" class="w-8 h-8 rounded-full inline-block mr-3 border border-slate-600">` 
+                    : `<div class="w-8 h-8 rounded-full inline-flex items-center justify-center bg-emerald-700 text-white font-bold mr-3">${user.name.charAt(0).toUpperCase()}</div>`;
 
                 html += `
                     <tr class="${rowClass} transition-colors">
                         <td class="p-4 text-center">${badge}</td>
-                        <td class="p-4 font-semibold text-slate-200">${user.name}</td>
+                        <td class="p-4 font-semibold text-slate-200 flex items-center">${avatar} ${user.name}</td>
                         <td class="p-4 text-center text-slate-400">${user.exact}</td>
                         <td class="p-4 text-center text-slate-400">${user.partial}</td>
                         <td class="p-4 text-center font-bold text-xl text-emerald-400">${user.totalPoints}</td>
@@ -430,12 +488,12 @@
 
             if (!activeUserId) {
                 container.innerHTML = `
-                    <div class="bg-slate-800 border border-yellow-600/50 p-8 rounded-xl text-center shadow-lg">
-                        <i class="fa-solid fa-circle-user text-6xl text-yellow-500 mb-4 drop-shadow-md"></i>
-                        <h2 class="text-2xl font-bold text-white mb-2">¿Quién eres?</h2>
-                        <p class="text-slate-300 mb-6">Para guardar tus pronósticos, primero debes seleccionar tu perfil o crear uno nuevo.</p>
-                        <button onclick="switchTab('ajustes')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-                            Ir a Ajustes para seleccionar perfil
+                    <div class="bg-slate-800 border border-emerald-600/50 p-8 rounded-xl text-center shadow-lg">
+                        <i class="fa-brands fa-google text-6xl text-emerald-500 mb-4 drop-shadow-md"></i>
+                        <h2 class="text-2xl font-bold text-white mb-2">Inicia Sesión</h2>
+                        <p class="text-slate-300 mb-6">Para guardar tus pronósticos, debes iniciar sesión con tu cuenta de Google.</p>
+                        <button onclick="loginWithGoogle()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center mx-auto">
+                            <i class="fa-brands fa-google mr-2"></i> Entrar con Google
                         </button>
                     </div>
                 `;
@@ -449,11 +507,14 @@
 
             const activeUser = globalData.users.find(u => u.id === activeUserId);
 
+            if (!activeUser) return; // Esperar a que cargue el usuario
+
             let html = `
                 <div class="mb-6 bg-emerald-900/20 border border-emerald-800 p-4 rounded-lg flex items-center">
-                    <div class="bg-emerald-600 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold text-white mr-4 shadow-md">
-                        ${activeUser.name.charAt(0).toUpperCase()}
-                    </div>
+                    ${activeUser.photoURL 
+                        ? `<img src="${activeUser.photoURL}" class="h-10 w-10 rounded-full mr-4 shadow-md border-2 border-emerald-500">`
+                        : `<div class="bg-emerald-600 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold text-white mr-4 shadow-md">${activeUser.name.charAt(0).toUpperCase()}</div>`
+                    }
                     <div>
                         <h3 class="text-white font-bold">Pronósticos de <span class="text-emerald-400">${activeUser.name}</span></h3>
                         <p class="text-sm text-slate-400">Guarda tus resultados antes de que comiencen los partidos.</p>
@@ -541,21 +602,18 @@
 
             try {
                 // Buscamos si ya existe el documento para actualizarlo
-                const existing = globalData.predictions.find(p => p.matchId === matchId && p.userId === activeUserId);
+                // En la nueva estructura, usamos un ID predecible para la predicción
+                const predId = `${matchId}_${activeUserId}`;
+                const predRef = doc(db, 'artifacts', appId, 'public', 'data', 'predictions', predId);
                 
-                if (existing) {
-                    const predRef = doc(db, 'artifacts', appId, 'public', 'data', 'predictions', existing.id);
-                    await updateDoc(predRef, { scoreA: parseInt(valA), scoreB: parseInt(valB) });
-                } else {
-                    const colRef = getCollectionRef('predictions');
-                    await addDoc(colRef, {
-                        matchId: matchId,
-                        userId: activeUserId,
-                        scoreA: parseInt(valA),
-                        scoreB: parseInt(valB),
-                        timestamp: Date.now()
-                    });
-                }
+                await setDoc(predRef, {
+                    matchId: matchId,
+                    userId: activeUserId,
+                    scoreA: parseInt(valA),
+                    scoreB: parseInt(valB),
+                    timestamp: Date.now()
+                }, { merge: true }); // Usamos setDoc con merge para crear o actualizar
+                
                 showToast("Pronóstico guardado exitosamente");
             } catch (error) {
                 console.error("Error saving prediction:", error);
@@ -566,45 +624,55 @@
         function renderAjustes() {
             const container = document.getElementById('content-ajustes');
             
-            let userOptions = `<option value="">-- Selecciona tu nombre --</option>`;
-            globalData.users.forEach(u => {
-                userOptions += `<option value="${u.id}" ${u.id === activeUserId ? 'selected' : ''}>${u.name}</option>`;
-            });
+            let authSection = '';
+            
+            if (activeUserId) {
+                const activeUser = globalData.users.find(u => u.id === activeUserId);
+                if (activeUser) {
+                    authSection = `
+                        <div class="bg-slate-800 p-6 rounded-xl border border-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.1)] text-center">
+                            ${activeUser.photoURL 
+                                ? `<img src="${activeUser.photoURL}" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-emerald-500 shadow-lg">`
+                                : `<div class="w-20 h-20 rounded-full mx-auto mb-4 bg-emerald-600 flex items-center justify-center text-3xl text-white font-bold shadow-lg">${activeUser.name.charAt(0).toUpperCase()}</div>`
+                            }
+                            <h2 class="text-xl font-bold text-white mb-1">${activeUser.name}</h2>
+                            <p class="text-sm text-slate-400 mb-6">${activeUser.email}</p>
+                            
+                            <button onclick="logout()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-full transition flex items-center justify-center mx-auto">
+                                <i class="fa-solid fa-right-from-bracket mr-2"></i> Cerrar Sesión
+                            </button>
+                        </div>
+                    `;
+                }
+            } else {
+                authSection = `
+                    <div class="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-md text-center">
+                        <i class="fa-brands fa-google text-5xl text-slate-400 mb-4"></i>
+                        <h2 class="text-xl font-bold text-white mb-2">Identificación</h2>
+                        <p class="text-sm text-slate-400 mb-6">Inicia sesión con tu cuenta de Google para participar en la quiniela.</p>
+                        
+                        <button onclick="loginWithGoogle()" class="w-full md:w-auto bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-6 rounded-lg transition flex items-center justify-center mx-auto shadow-md">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 mr-3" alt="Google">
+                            Continuar con Google
+                        </button>
+                    </div>
+                `;
+            }
 
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
-                    <!-- PERFIL ACTIVO -->
-                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-md">
-                        <div class="flex items-center mb-4 text-emerald-400">
-                            <i class="fa-solid fa-user-check text-2xl mr-3"></i>
-                            <h2 class="text-xl font-bold text-white">Mi Perfil</h2>
-                        </div>
-                        <p class="text-sm text-slate-400 mb-4">Selecciona quién eres en este dispositivo para poder hacer pronósticos.</p>
-                        
-                        <select id="selectUser" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mb-4 focus:outline-none focus:border-emerald-500">
-                            ${userOptions}
-                        </select>
-                        <button onclick="setActiveUser()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded transition">
-                            Confirmar Selección
-                        </button>
+                    <!-- SECCIÓN DE AUTENTICACIÓN -->
+                    ${authSection}
 
-                        <div class="mt-8 border-t border-slate-700 pt-6">
-                            <h3 class="text-sm font-bold text-slate-300 mb-2">¿Eres nuevo? Crea tu participante</h3>
-                            <input type="text" id="newUserName" placeholder="Tu Nombre / Apodo" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mb-2 focus:outline-none focus:border-emerald-500">
-                            <button onclick="createNewUser()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded transition flex items-center justify-center">
-                                <i class="fa-solid fa-user-plus mr-2"></i> Añadir Participante
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- ADMINISTRACION DE PARTIDOS -->
+                    <!-- ADMINISTRACION DE PARTIDOS (Solo visible si está logueado, idealmente deberías tener un rol de admin, pero por ahora todos pueden) -->
+                    ${activeUserId ? `
                     <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-md">
                         <div class="flex items-center mb-4 text-purple-400">
                             <i class="fa-solid fa-calendar-plus text-2xl mr-3"></i>
-                            <h2 class="text-xl font-bold text-white">Agregar Partido</h2>
+                            <h2 class="text-xl font-bold text-white">Administración de Partidos</h2>
                         </div>
-                        <p class="text-sm text-slate-400 mb-4">Crea los partidos para que los jugadores puedan pronosticar.</p>
+                        <p class="text-sm text-slate-400 mb-4">Añade nuevos encuentros al torneo.</p>
                         
                         <div class="space-y-3">
                             <input type="text" id="newMatchStage" placeholder="Fase (Ej: Grupo A, Octavos...)" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white">
@@ -627,52 +695,40 @@
                             ` : ''}
                         </div>
                     </div>
+                    ` : ''}
                 </div>
             `;
         }
 
-        window.setActiveUser = function() {
-            const select = document.getElementById('selectUser');
-            if (select.value) {
-                activeUserId = select.value;
-                showToast("Perfil seleccionado. ¡Ya puedes hacer pronósticos!");
-                updateUI();
-                switchTab('pronosticos');
-            } else {
-                showToast("Por favor selecciona un perfil", "warning");
+        window.loginWithGoogle = async function() {
+            try {
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+                document.querySelector('#loadingOverlay p').innerText = "Iniciando sesión con Google...";
+                
+                // En el entorno Inmersivo, el popup puede estar bloqueado.
+                // Firebase recomienda signInWithPopup para web.
+                await signInWithPopup(auth, googleProvider);
+                // El onAuthStateChanged se encargará del resto
+            } catch (error) {
+                console.error("Error en login con Google:", error);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showToast("Inicio de sesión cancelado", "warning");
+                } else if (error.code === 'auth/popup-blocked') {
+                     showToast("El navegador bloqueó la ventana emergente de login. Por favor, permite los popups para este sitio.", "error");
+                } else {
+                    showToast("Error al iniciar sesión: " + error.message, "error");
+                }
             }
         };
 
-        window.createNewUser = async function() {
-            if (!auth.currentUser) return;
-            const nameInput = document.getElementById('newUserName');
-            const name = nameInput.value.trim();
-            
-            if (name.length < 2) {
-                showToast("El nombre debe tener al menos 2 letras", "warning");
-                return;
-            }
-
-            // Verificar si existe
-            if (globalData.users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
-                showToast("Ya existe un participante con ese nombre", "error");
-                return;
-            }
-
+        window.logout = async function() {
             try {
-                const colRef = getCollectionRef('users');
-                const docRef = await addDoc(colRef, {
-                    name: name,
-                    createdAt: Date.now()
-                });
-                nameInput.value = '';
-                // Auto seleccionar el nuevo usuario
-                activeUserId = docRef.id;
-                showToast("Participante creado y seleccionado exitosamente");
-                // El render se llamará vía onSnapshot
+                await signOut(auth);
+                showToast("Sesión cerrada");
             } catch (error) {
-                console.error("Error adding user:", error);
-                showToast("Error al crear usuario", "error");
+                console.error("Error cerrando sesión:", error);
             }
         };
 
