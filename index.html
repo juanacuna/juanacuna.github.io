@@ -54,7 +54,6 @@
             </div>
         </div>
         
-        <!-- Navigation Tabs -->
         <div class="max-w-4xl mx-auto px-2">
             <div class="flex overflow-x-auto hide-scrollbar space-x-1 border-b border-slate-700">
                 <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn active px-4 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors">
@@ -78,45 +77,35 @@
 
     <main class="flex-grow max-w-4xl w-full mx-auto p-4 relative">
         
-        <!-- Loading State -->
         <div id="loadingOverlay" class="absolute inset-0 bg-slate-900 bg-opacity-90 z-40 flex flex-col items-center justify-center rounded-lg">
             <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-4xl mb-4"></i>
             <p class="text-slate-300">Conectando con el servidor...</p>
         </div>
 
-        <!-- Tab Contents -->
         <div id="content-ranking" class="tab-content hidden fade-in"></div>
         <div id="content-resultados" class="tab-content hidden fade-in"></div>
         <div id="content-pronosticos" class="tab-content hidden fade-in"></div>
         <div id="content-normas" class="tab-content hidden fade-in"></div>
-        <div id="content-ajustes" class="tab-content fade-in"></div> <!-- Hacemos ajustes la pestaña principal para el login -->
+        <div id="content-ajustes" class="tab-content fade-in"></div>
 
     </main>
 
-    <!-- Custom Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Importamos GoogleAuthProvider y signInWithPopup
         import { getAuth, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ==========================================
-        // CONFIGURACIÓN PARA GITHUB PAGES
-        // ==========================================
-        // Si descargas esto para tu propio Github Pages, reemplaza `fallbackConfig` con 
-        // los datos reales de tu proyecto de Firebase (Firebase Console -> Project Settings).
         const fallbackConfig = {
-          apiKey: "AIzaSyBPtzJQvq77TzCva3oevKoe435aGlu6O7E",
-          authDomain: "fifa2026-9a835.firebaseapp.com",
-          projectId: "fifa2026-9a835",
-          storageBucket: "fifa2026-9a835.firebasestorage.app",
-          messagingSenderId: "669519927527",
-          appId: "1:669519927527:web:0f9ccfc29b808c98146a42"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
         };
 
-        // Entorno Inmersivo variables
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'quiniela-mundial-2026';
         let firebaseConfig = fallbackConfig;
         
@@ -128,28 +117,21 @@
             }
         }
 
-        // ==========================================
-        // ESTADO GLOBAL DE LA APLICACIÓN
-        // ==========================================
         let app, db, auth, googleProvider;
         let globalData = {
             users: [],
             matches: [],
             predictions: []
         };
-        let activeUserId = null; // ID del usuario autenticado (uid de Google)
-        let activeUserEmail = null; // Correo del usuario autenticado
+        let activeUserId = null; 
+        let activeUserEmail = null; 
         
-        // ==========================================
-        // CONFIGURACIÓN DE ADMINISTRADOR
-        // ¡IMPORTANTE! Reemplaza este correo con tu cuenta real de Google
-        // ==========================================
-        const adminEmails = ['acuna.juankarlos@gmail.com','rcadenas@equifax.com']; 
+        // ¡IMPORTANTE! Reemplaza este correo con tu cuenta real de Google administrador
+        const adminEmails = ['tu_correo@gmail.com']; 
 
-        let currentTab = 'ajustes'; // Iniciamos en ajustes para el login
+        let currentTab = 'ajustes'; 
         let unsubs = [];
 
-        // Sistema de notificaciones (Reemplazo seguro de alert())
         window.showToast = function(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -165,22 +147,18 @@
             
             container.appendChild(toast);
             
-            // Animar entrada
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-y-10', 'opacity-0');
             });
 
-            // Remover después de 3 segundos
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         };
 
-        // Control de Pestañas
         window.switchTab = function(tabId) {
             currentTab = tabId;
-            // Actualizar botones
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-emerald-400'));
             const activeBtn = document.getElementById(`tab-${tabId}`);
             if(activeBtn) {
@@ -188,7 +166,6 @@
                 activeBtn.classList.remove('text-slate-400');
             }
             
-            // Mostrar contenido
             document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
             const activeContent = document.getElementById(`content-${tabId}`);
             if(activeContent) activeContent.classList.remove('hidden');
@@ -206,13 +183,11 @@
 
         async function initApp() {
             try {
-                // Si la config es la de fallback y no ha sido modificada, puede fallar al conectar.
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 googleProvider = new GoogleAuthProvider();
 
-                // Escuchar cambios en el estado de autenticación
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         activeUserId = user.uid;
@@ -220,7 +195,7 @@
                         await ensureUserExists(user);
                         setupRealtimeListeners();
                         if (currentTab === 'ajustes') {
-                            switchTab('ranking'); // Ir al ranking una vez logueado
+                            switchTab('ranking'); 
                         }
                     } else {
                         activeUserId = null;
@@ -229,12 +204,11 @@
                         if (currentTab !== 'ajustes') {
                              switchTab('ajustes');
                         } else {
-                             renderAjustes(); // Forzar render de ajustes para mostrar botón de login
+                             renderAjustes(); 
                         }
                     }
                 });
 
-                // En el entorno inmersivo, podríamos tener un token inicial
                 if (typeof __initial_auth_token !== 'undefined' && !auth.currentUser) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 }
@@ -252,7 +226,6 @@
         }
 
         function getCollectionRef(colName) {
-            // Regla mandatoria: /artifacts/{appId}/public/data/{collectionName}
             return collection(db, 'artifacts', appId, 'public', 'data', colName);
         }
 
@@ -272,7 +245,6 @@
                 userData.createdAt = Date.now();
                 await setDoc(userRef, userData);
             } else {
-                // Actualizar info en caso de que haya cambiado en Google
                 await updateDoc(userRef, {
                     name: userData.name,
                     photoURL: userData.photoURL,
@@ -282,7 +254,6 @@
         }
 
         function setupRealtimeListeners() {
-            // Limpiar listeners anteriores si existen
             unsubs.forEach(unsub => unsub());
             unsubs = [];
 
@@ -290,7 +261,6 @@
             const matchesRef = getCollectionRef('matches');
             const predictionsRef = getCollectionRef('predictions');
 
-            // Listeners
             unsubs.push(
                 onSnapshot(usersRef, (snapshot) => {
                     globalData.users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -301,7 +271,6 @@
             unsubs.push(
                 onSnapshot(matchesRef, (snapshot) => {
                     globalData.matches = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    // Ordenar por fecha localmente
                     globalData.matches.sort((a, b) => new Date(a.date) - new Date(b.date));
                     updateUI();
                 }, (error) => console.error("Error matches:", error))
@@ -314,12 +283,10 @@
                 }, (error) => console.error("Error predictions:", error))
             );
             
-            // Ocultar loading
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
 
         function updateUI() {
-            // Actualizar display de usuario activo
             const userDisplay = document.getElementById('currentUserDisplay');
             if (activeUserId && globalData.users.length > 0) {
                 const user = globalData.users.find(u => u.id === activeUserId);
@@ -338,16 +305,13 @@
         }
 
         function calculatePoints() {
-            // Inicializar contadores
             let stats = {};
             globalData.users.forEach(u => {
                 stats[u.id] = { ...u, exact: 0, partial: 0, totalPoints: 0 };
             });
 
-            // Procesar predicciones vs resultados
             globalData.predictions.forEach(pred => {
                 const match = globalData.matches.find(m => m.id === pred.matchId);
-                // Si el partido no existe o no tiene resultado final, ignorar
                 if (!match || match.scoreA === null || match.scoreA === '' || match.scoreB === null || match.scoreB === '') return;
                 
                 const userStat = stats[pred.userId];
@@ -360,19 +324,16 @@
 
                 if (isNaN(pA) || isNaN(pB) || isNaN(rA) || isNaN(rB)) return;
 
-                // Lógica de puntuación
                 if (pA === rA && pB === rB) {
-                    // Exacto: 3 puntos
                     userStat.exact += 1;
                     userStat.totalPoints += 3;
                 } else {
-                    // Ver si acertó el ganador o empate
                     const predDiff = pA - pB;
                     const realDiff = rA - rB;
                     
-                    const acertado = (predDiff > 0 && realDiff > 0) || // Gana A
-                                     (predDiff < 0 && realDiff < 0) || // Gana B
-                                     (predDiff === 0 && realDiff === 0); // Empate
+                    const acertado = (predDiff > 0 && realDiff > 0) || 
+                                     (predDiff < 0 && realDiff < 0) || 
+                                     (predDiff === 0 && realDiff === 0); 
                     
                     if (acertado) {
                         userStat.partial += 1;
@@ -381,10 +342,8 @@
                 }
             });
 
-            // Convertir a array y ordenar (Mayor a menor puntos)
             return Object.values(stats).sort((a, b) => {
                 if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
-                // Desempate por aciertos exactos
                 return b.exact - a.exact;
             });
         }
@@ -406,8 +365,8 @@
                                 <tr class="bg-slate-900 text-slate-400 text-xs uppercase tracking-wider">
                                     <th class="p-4 w-16 text-center">Pos</th>
                                     <th class="p-4">Participante</th>
-                                    <th class="p-4 text-center tooltip" title="Aciertos Exactos (3pts)">Exactos</th>
-                                    <th class="p-4 text-center tooltip" title="Acertar Ganador (1pt)">Parciales</th>
+                                    <th class="p-4 text-center">Exactos</th>
+                                    <th class="p-4 text-center">Parciales</th>
                                     <th class="p-4 text-center font-bold text-emerald-400">Puntos</th>
                                 </tr>
                             </thead>
@@ -455,7 +414,7 @@
                 ${isAdmin ? `
                 <div class="bg-blue-900/30 border border-blue-800 p-4 rounded-lg text-sm text-blue-200 mb-6 flex items-start">
                     <i class="fa-solid fa-user-shield mt-1 mr-3 text-blue-400"></i>
-                    <p><strong>Panel de Administrador:</strong> Ingresa los resultados reales o bloquea los pronósticos de cada partido para evitar que los usuarios hagan trampas antes de iniciar.</p>
+                    <p><strong>Panel de Administrador:</strong> Ingresa los resultados reales. Si cometes un error en un partido finalizado, puedes modificarlo directamente o presionar el botón "Reabrir Partido" para desvincular el resultado.</p>
                 </div>` : ''}
             `;
 
@@ -492,8 +451,13 @@
                         ${isAdmin ? `
                         <div class="mt-4 flex justify-center space-x-3 border-t border-slate-700/50 pt-4">
                             <button onclick="saveResult('${match.id}')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-sm font-semibold rounded-lg transition shadow-md flex items-center text-emerald-400">
-                                <i class="fa-solid fa-save mr-2"></i> Guardar Final
+                                <i class="fa-solid fa-save mr-2"></i> ${isFinished ? 'Modificar Final' : 'Guardar Final'}
                             </button>
+                            ${isFinished ? `
+                            <button onclick="reopenMatch('${match.id}')" class="px-4 py-2 bg-red-900/40 hover:bg-red-900/70 text-red-400 text-sm font-semibold rounded-lg transition shadow-md flex items-center border border-red-700/50">
+                                <i class="fa-solid fa-folder-open mr-2"></i> Reabrir Partido
+                            </button>
+                            ` : ''}
                             <button onclick="toggleLock('${match.id}', ${isLocked})" class="px-4 py-2 ${isLocked ? 'bg-orange-900/50 hover:bg-orange-900/80 text-orange-400' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'} text-sm font-semibold rounded-lg transition shadow-md flex items-center border border-slate-600">
                                 <i class="fa-solid ${isLocked ? 'fa-unlock' : 'fa-lock'} mr-2"></i> ${isLocked ? 'Desbloquear Pronósticos' : 'Bloquear Pronósticos'}
                             </button>
@@ -627,6 +591,27 @@
             }
         };
 
+        window.reopenMatch = async function(matchId) {
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) { 
+                showToast("Acceso denegado: Solo administradores.", "error"); 
+                return; 
+            }
+
+            try {
+                const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId);
+                // Restablecemos los marcadores a null y desbloqueamos los pronósticos
+                await updateDoc(matchRef, { 
+                    scoreA: null, 
+                    scoreB: null,
+                    isLocked: false 
+                });
+                showToast("Partido reabierto y pronósticos desbloqueados", "success");
+            } catch (error) {
+                console.error("Error al reabrir partido:", error);
+                showToast("Error al reabrir el partido", "error");
+            }
+        };
+
         window.savePrediction = async function(matchId) {
             if (!auth.currentUser) return;
             if (!activeUserId) {
@@ -634,7 +619,6 @@
                 return;
             }
 
-            // Seguridad extra en cliente
             const match = globalData.matches.find(m => m.id === matchId);
             if (match && (match.isLocked || match.scoreA !== null)) {
                  showToast("Este partido ya está bloqueado para pronósticos", "error");
@@ -670,7 +654,6 @@
 
         function renderAjustes() {
             const container = document.getElementById('content-ajustes');
-            
             let authSection = '';
             
             if (activeUserId) {
@@ -709,11 +692,8 @@
 
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- SECCIÓN DE AUTENTICACIÓN -->
                     ${authSection}
 
-                    <!-- ADMINISTRACION DE PARTIDOS -->
                     ${(activeUserId && adminEmails.includes(activeUserEmail)) ? `
                     <div class="bg-slate-800 p-6 rounded-xl border border-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
                         <div class="flex items-center mb-4 text-blue-400">
@@ -760,15 +740,10 @@
             try {
                 document.getElementById('loadingOverlay').classList.remove('hidden');
                 document.querySelector('#loadingOverlay p').innerText = "Iniciando sesión con Google...";
-                
-                // En el entorno Inmersivo, el popup puede estar bloqueado.
-                // Firebase recomienda signInWithPopup para web.
                 await signInWithPopup(auth, googleProvider);
-                // El onAuthStateChanged se encargará del resto
             } catch (error) {
                 console.error("Error en login con Google:", error);
                 document.getElementById('loadingOverlay').classList.add('hidden');
-                
                 if (error.code === 'auth/popup-closed-by-user') {
                     showToast("Inicio de sesión cancelado", "warning");
                 } else if (error.code === 'auth/popup-blocked') {
@@ -859,7 +834,6 @@
             container.innerHTML = `
                 <div class="bg-slate-800 p-8 rounded-xl shadow border border-slate-700 text-slate-300 leading-relaxed max-w-2xl mx-auto">
                     <h2 class="text-3xl font-bold text-white mb-6 text-center">🏆 Reglas de la Quiniela</h2>
-                    
                     <p class="mb-6 text-center text-lg">El sistema de puntuación es automático y se basa en los siguientes criterios al comparar tu pronóstico con el resultado final del partido:</p>
 
                     <div class="space-y-6">
@@ -896,7 +870,6 @@
             `;
         }
 
-        // Initialize application when DOM is loaded
         window.addEventListener('DOMContentLoaded', () => {
             initApp();
         });
