@@ -6,127 +6,147 @@
     <title>Quiniela Mundial 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #f8fafc; /* Slate 50 */
+            background-color: #f3f4f6; /* Gray 100 */
+            color: #1f2937; /* Gray 800 */
         }
         .tab-btn.active {
-            border-bottom: 2px solid #10b981; /* Emerald 500 */
-            color: #10b981;
+            border-bottom: 3px solid #16a34a; /* Green 600 */
+            color: #16a34a;
+            font-weight: 700;
         }
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Custom Scrollbar */
+        /* Custom Scrollbar for light theme */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
+        
+        .progress-bar-bg { background-color: #e5e7eb; }
+        .progress-bar-fill { background-color: #9ca3af; transition: width 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="bg-slate-800 shadow-md border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center space-x-3 mb-4 md:mb-0">
-                <i class="fa-solid fa-trophy text-emerald-400 text-2xl"></i>
-                <h1 class="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-purple-500">
-                    QUINIELA 2026
-                </h1>
+    <!-- Header Oscuro -->
+    <header class="bg-[#1a472a] shadow-md z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                <div class="bg-white p-2 rounded-full shadow-inner flex items-center justify-center w-12 h-12">
+                    <i class="fa-solid fa-trophy text-yellow-500 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-wide text-white leading-tight">
+                        QUINIELA MUNDIAL 2026
+                    </h1>
+                    <p class="text-sm text-green-200/80 font-medium">Canadá • Estados Unidos • México</p>
+                </div>
             </div>
             
-            <div id="currentUserDisplay" class="text-sm font-medium text-slate-300 bg-slate-700 px-3 py-1 rounded-full hidden">
-                <i class="fa-solid fa-user text-emerald-400 mr-2"></i><span id="currentUserName">Invitado</span>
-            </div>
-        </div>
-        
-        <div class="max-w-4xl mx-auto px-2">
-            <div class="flex overflow-x-auto hide-scrollbar space-x-1 border-b border-slate-700">
-                <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn active px-4 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-list-ol mr-2"></i>Ranking
-                </button>
-                <button onclick="switchTab('resultados')" id="tab-resultados" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-futbol mr-2"></i>Resultados
-                </button>
-                <button onclick="switchTab('pronosticos')" id="tab-pronosticos" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-pen-to-square mr-2"></i>Pronósticos
-                </button>
-                <button onclick="switchTab('normas')" id="tab-normas" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-book mr-2"></i>Normas
-                </button>
-                <button onclick="switchTab('ajustes')" id="tab-ajustes" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-gear mr-2"></i>Ajustes
-                </button>
+            <div class="flex items-center space-x-4">
+                <div id="currentUserDisplay" class="text-sm font-medium text-white flex items-center hidden">
+                    <span id="currentUserName"></span>
+                </div>
+                <div class="bg-black/30 border border-black/20 px-4 py-1.5 rounded-full text-xs font-semibold text-gray-200 flex items-center shadow-inner">
+                    <div class="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></div>
+                    Conectado. Sincronizado.
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow max-w-4xl w-full mx-auto p-4 relative">
+    <!-- Navigation Tabs Claras -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 flex overflow-x-auto hide-scrollbar space-x-6">
+            <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn active py-4 text-sm font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap transition-colors flex items-center">
+                <i class="fa-solid fa-ranking-star mr-2"></i>Ranking
+            </button>
+            <button onclick="switchTab('resultados')" id="tab-resultados" class="tab-btn py-4 text-sm font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap transition-colors flex items-center">
+                <i class="fa-regular fa-circle-play mr-2"></i>Resultados Reales
+            </button>
+            <button onclick="switchTab('pronosticos')" id="tab-pronosticos" class="tab-btn py-4 text-sm font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap transition-colors flex items-center">
+                <i class="fa-regular fa-pen-to-square mr-2"></i>Pronósticos Amigos
+            </button>
+            <button onclick="switchTab('ajustes')" id="tab-ajustes" class="tab-btn py-4 text-sm font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap transition-colors flex items-center">
+                <i class="fa-solid fa-gears mr-2"></i>Participantes y Ajustes
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 relative">
         
-        <div id="loadingOverlay" class="absolute inset-0 bg-slate-900 bg-opacity-90 z-40 flex flex-col items-center justify-center rounded-lg">
-            <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-4xl mb-4"></i>
-            <p class="text-slate-300">Conectando con el servidor...</p>
+        <!-- Loading State -->
+        <div id="loadingOverlay" class="absolute inset-0 bg-white/90 z-40 flex flex-col items-center justify-center rounded-lg backdrop-blur-sm">
+            <i class="fa-solid fa-circle-notch fa-spin text-green-600 text-4xl mb-4"></i>
+            <p class="text-gray-600 font-medium">Conectando con la base de datos...</p>
         </div>
 
+        <!-- Tab Contents -->
         <div id="content-ranking" class="tab-content hidden fade-in"></div>
         <div id="content-resultados" class="tab-content hidden fade-in"></div>
         <div id="content-pronosticos" class="tab-content hidden fade-in"></div>
-        <div id="content-normas" class="tab-content hidden fade-in"></div>
         <div id="content-ajustes" class="tab-content fade-in"></div>
 
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-[#111827] py-4 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-xs">© 2026 Quiniela Mundialista FIFA 2026. Diseñado para organizar campeonatos entre amigos fácilmente de manera compartida.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const fallbackConfig =  {
-  apiKey: "AIzaSyBPtzJQvq77TzCva3oevKoe435aGlu6O7E",
-  authDomain: "fifa2026-9a835.firebaseapp.com",
-  projectId: "fifa2026-9a835",
-  storageBucket: "fifa2026-9a835.firebasestorage.app",
-  messagingSenderId: "669519927527",
-  appId: "1:669519927527:web:0f9ccfc29b808c98146a42"
-};
-
+        // ==========================================
+        // CONFIGURACIÓN
+        // ==========================================
+        const fallbackConfig = {
+                apiKey: "AIzaSyBPtzJQvq77TzCva3oevKoe435aGlu6O7E",
+                authDomain: "fifa2026-9a835.firebaseapp.com",
+                projectId: "fifa2026-9a835",
+                storageBucket: "fifa2026-9a835.firebasestorage.app",
+                messagingSenderId: "669519927527",
+                appId: "1:669519927527:web:0f9ccfc29b808c98146a42"
+            };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'quiniela-mundial-2026';
         let firebaseConfig = fallbackConfig;
         
         if (typeof __firebase_config !== 'undefined') {
-            try {
-                firebaseConfig = JSON.parse(__firebase_config);
-            } catch(e) {
-                console.warn("Invalid injected config, using fallback.");
-            }
+            try { firebaseConfig = JSON.parse(__firebase_config); } catch(e) {}
         }
 
+        // ESTADO GLOBAL
         let app, db, auth, googleProvider;
-        let globalData = {
-            users: [],
-            matches: [],
-            predictions: []
-        };
+        let globalData = { users: [], matches: [], predictions: [] };
         let activeUserId = null; 
         let activeUserEmail = null; 
         
-        // ¡IMPORTANTE! Reemplaza este correo con tu cuenta real de Google administrador
+        // ==========================================
+        // CORREO DEL ADMINISTRADOR
+        // ==========================================
         const adminEmails = ['acuna.juankarlos@gmail.com','rcadenas@equifax.com']; 
 
         let currentTab = 'ajustes'; 
@@ -135,22 +155,13 @@
         window.showToast = function(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
+            let bgClass = type === 'success' ? 'bg-green-600' : type === 'warning' ? 'bg-yellow-500' : 'bg-red-600';
             
-            let bgClass = type === 'success' ? 'bg-emerald-600' : 'bg-red-600';
-            if (type === 'warning') bgClass = 'bg-yellow-600';
-
             toast.className = `${bgClass} text-white px-4 py-3 rounded shadow-lg flex items-center space-x-2 transition-all duration-300 transform translate-y-10 opacity-0`;
-            toast.innerHTML = `
-                <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}"></i>
-                <span class="text-sm font-medium">${message}</span>
-            `;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation'}"></i><span class="text-sm font-medium">${message}</span>`;
             
             container.appendChild(toast);
-            
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-10', 'opacity-0');
-            });
-
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -159,17 +170,15 @@
 
         window.switchTab = function(tabId) {
             currentTab = tabId;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-emerald-400'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-green-700', 'font-bold'));
             const activeBtn = document.getElementById(`tab-${tabId}`);
             if(activeBtn) {
                 activeBtn.classList.add('active');
-                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.remove('text-gray-500');
             }
-            
             document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
             const activeContent = document.getElementById(`content-${tabId}`);
             if(activeContent) activeContent.classList.remove('hidden');
-
             renderCurrentTab();
         };
 
@@ -177,7 +186,6 @@
             if(currentTab === 'ranking') renderRanking();
             if(currentTab === 'resultados') renderResultados();
             if(currentTab === 'pronosticos') renderPronosticos();
-            if(currentTab === 'normas') renderNormas();
             if(currentTab === 'ajustes') renderAjustes();
         }
 
@@ -194,95 +202,48 @@
                         activeUserEmail = user.email;
                         await ensureUserExists(user);
                         setupRealtimeListeners();
-                        if (currentTab === 'ajustes') {
-                            switchTab('ranking'); 
-                        }
+                        if (currentTab === 'ajustes') switchTab('ranking');
                     } else {
                         activeUserId = null;
                         activeUserEmail = null;
                         document.getElementById('loadingOverlay').classList.add('hidden');
-                        if (currentTab !== 'ajustes') {
-                             switchTab('ajustes');
-                        } else {
-                             renderAjustes(); 
-                        }
+                        if (currentTab !== 'ajustes') switchTab('ajustes');
+                        else renderAjustes();
                     }
                 });
 
                 if (typeof __initial_auth_token !== 'undefined' && !auth.currentUser) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 }
-
             } catch (error) {
-                console.error("Error inicializando Firebase:", error);
-                document.getElementById('loadingOverlay').innerHTML = `
-                    <div class="bg-red-900/50 p-6 rounded-lg text-center max-w-md border border-red-700">
-                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
-                        <h2 class="text-xl font-bold text-white mb-2">Falta Configuración</h2>
-                        <p class="text-red-200 text-sm mb-4">Para que el multijugador funcione en GitHub Pages, debes editar el archivo y colocar la configuración de tu proyecto de Firebase en la variable <code>fallbackConfig</code>.</p>
-                    </div>
-                `;
+                console.error("Error inicializando:", error);
             }
         }
 
-        function getCollectionRef(colName) {
-            return collection(db, 'artifacts', appId, 'public', 'data', colName);
-        }
+        function getCollectionRef(colName) { return collection(db, 'artifacts', appId, 'public', 'data', colName); }
 
         async function ensureUserExists(authUser) {
             const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', authUser.uid);
             const userSnap = await getDoc(userRef);
-            
-            const userData = {
-                id: authUser.uid,
-                name: authUser.displayName || 'Participante',
-                photoURL: authUser.photoURL || '',
-                email: authUser.email || '',
-                lastLogin: Date.now()
-            };
-
+            const userData = { id: authUser.uid, name: authUser.displayName || 'Participante', photoURL: authUser.photoURL || '', email: authUser.email || '', lastLogin: Date.now() };
             if (!userSnap.exists()) {
                 userData.createdAt = Date.now();
                 await setDoc(userRef, userData);
             } else {
-                await updateDoc(userRef, {
-                    name: userData.name,
-                    photoURL: userData.photoURL,
-                    lastLogin: userData.lastLogin
-                });
+                await updateDoc(userRef, { name: userData.name, photoURL: userData.photoURL, lastLogin: userData.lastLogin });
             }
         }
 
         function setupRealtimeListeners() {
             unsubs.forEach(unsub => unsub());
             unsubs = [];
-
-            const usersRef = getCollectionRef('users');
-            const matchesRef = getCollectionRef('matches');
-            const predictionsRef = getCollectionRef('predictions');
-
-            unsubs.push(
-                onSnapshot(usersRef, (snapshot) => {
-                    globalData.users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    updateUI();
-                }, (error) => console.error("Error users:", error))
-            );
-
-            unsubs.push(
-                onSnapshot(matchesRef, (snapshot) => {
-                    globalData.matches = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    globalData.matches.sort((a, b) => new Date(a.date) - new Date(b.date));
-                    updateUI();
-                }, (error) => console.error("Error matches:", error))
-            );
-
-            unsubs.push(
-                onSnapshot(predictionsRef, (snapshot) => {
-                    globalData.predictions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    updateUI();
-                }, (error) => console.error("Error predictions:", error))
-            );
-            
+            unsubs.push(onSnapshot(getCollectionRef('users'), snap => { globalData.users = snap.docs.map(d => ({id: d.id, ...d.data()})); updateUI(); }));
+            unsubs.push(onSnapshot(getCollectionRef('matches'), snap => { 
+                globalData.matches = snap.docs.map(d => ({id: d.id, ...d.data()})); 
+                globalData.matches.sort((a, b) => new Date(a.date) - new Date(b.date));
+                updateUI(); 
+            }));
+            unsubs.push(onSnapshot(getCollectionRef('predictions'), snap => { globalData.predictions = snap.docs.map(d => ({id: d.id, ...d.data()})); updateUI(); }));
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
 
@@ -292,7 +253,7 @@
                 const user = globalData.users.find(u => u.id === activeUserId);
                 if (user) {
                     document.getElementById('currentUserName').innerHTML = `
-                        ${user.photoURL ? `<img src="${user.photoURL}" class="w-6 h-6 rounded-full inline-block mr-2 border border-emerald-500">` : `<i class="fa-solid fa-user text-emerald-400 mr-2"></i>`}
+                        ${user.photoURL ? `<img src="${user.photoURL}" class="w-6 h-6 rounded-full inline-block mr-2 border border-white/50">` : `<i class="fa-solid fa-user text-green-400 mr-2"></i>`}
                         ${user.name}
                     `;
                     userDisplay.classList.remove('hidden');
@@ -300,14 +261,21 @@
             } else {
                 userDisplay.classList.add('hidden');
             }
-
             renderCurrentTab();
         }
 
         function calculatePoints() {
             let stats = {};
+            let totalPlayedMatches = 0;
+
+            globalData.matches.forEach(m => {
+                if (m.scoreA !== null && m.scoreB !== null && m.scoreA !== '' && m.scoreB !== '') {
+                    totalPlayedMatches++;
+                }
+            });
+
             globalData.users.forEach(u => {
-                stats[u.id] = { ...u, exact: 0, partial: 0, totalPoints: 0 };
+                stats[u.id] = { ...u, exact: 0, partial: 0, fallados: 0, totalPoints: 0, efectividad: 0 };
             });
 
             globalData.predictions.forEach(pred => {
@@ -317,85 +285,131 @@
                 const userStat = stats[pred.userId];
                 if (!userStat) return;
 
-                const pA = parseInt(pred.scoreA);
-                const pB = parseInt(pred.scoreB);
-                const rA = parseInt(match.scoreA);
-                const rB = parseInt(match.scoreB);
+                const pA = parseInt(pred.scoreA); const pB = parseInt(pred.scoreB);
+                const rA = parseInt(match.scoreA); const rB = parseInt(match.scoreB);
 
-                if (isNaN(pA) || isNaN(pB) || isNaN(rA) || isNaN(rB)) return;
-
-                if (pA === rA && pB === rB) {
-                    userStat.exact += 1;
-                    userStat.totalPoints += 3;
-                } else {
-                    const predDiff = pA - pB;
-                    const realDiff = rA - rB;
-                    
-                    const acertado = (predDiff > 0 && realDiff > 0) || 
-                                     (predDiff < 0 && realDiff < 0) || 
-                                     (predDiff === 0 && realDiff === 0); 
-                    
-                    if (acertado) {
-                        userStat.partial += 1;
-                        userStat.totalPoints += 1;
+                if (!isNaN(pA) && !isNaN(pB) && !isNaN(rA) && !isNaN(rB)) {
+                    if (pA === rA && pB === rB) {
+                        userStat.exact += 1; userStat.totalPoints += 3;
+                    } else if ((pA - pB > 0 && rA - rB > 0) || (pA - pB < 0 && rA - rB < 0) || (pA - pB === 0 && rA - rB === 0)) {
+                        userStat.partial += 1; userStat.totalPoints += 1;
                     }
                 }
             });
 
-            return Object.values(stats).sort((a, b) => {
-                if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
-                return b.exact - a.exact;
-            });
+            return Object.values(stats).map(user => {
+                user.fallados = totalPlayedMatches - (user.exact + user.partial);
+                if (user.fallados < 0) user.fallados = 0; 
+                user.efectividad = totalPlayedMatches > 0 ? Math.round(((user.exact + user.partial) / totalPlayedMatches) * 100) : 0;
+                return user;
+            }).sort((a, b) => b.totalPoints !== a.totalPoints ? b.totalPoints - a.totalPoints : b.exact - a.exact);
         }
+
+        window.copyShareLink = function() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => showToast("¡Enlace copiado al portapapeles!"));
+        };
 
         function renderRanking() {
             const container = document.getElementById('content-ranking');
             const ranking = calculatePoints();
 
-            if (ranking.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-users text-4xl mb-3"></i><p>Aún no hay participantes en la liga.</p></div>`;
-                return;
-            }
-
             let html = `
-                <div class="bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-slate-700">
+                <!-- Banner Multijugador Idéntico a la imagen -->
+                <div class="bg-[#f0f2f5] border border-gray-200 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="bg-indigo-500 rounded-2xl p-4 shadow-md text-white">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-gray-800 font-bold text-lg">Sincronización en la Nube (Multijugador)</h2>
+                            <p class="text-gray-500 text-sm leading-tight">Crea un grupo para que tus amigos carguen sus quinielas desde sus propios teléfonos.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 w-full md:w-auto bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="px-3 py-1 bg-gray-50 rounded text-gray-500 text-xs font-semibold whitespace-nowrap border border-gray-100">
+                            SALA GLOBAL
+                        </div>
+                        <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-6 rounded-lg transition whitespace-nowrap">
+                            Copiar Enlace
+                        </button>
+                        <span class="text-gray-300">|</span>
+                        <button class="bg-[#1a472a] hover:bg-[#12331e] text-white text-sm font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap">
+                            Sala Activa ⚡
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Posiciones -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Tabla de Posiciones</h3>
+                            <p class="text-sm text-gray-500">Puntajes calculados de forma automática según las reglas establecidas.</p>
+                        </div>
+                        <div class="flex gap-3 text-xs font-semibold">
+                            <div class="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full flex items-center shadow-sm">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                Marcador Exacto: 3 pts
+                            </div>
+                            <div class="bg-yellow-50 text-yellow-700 border border-yellow-200 px-3 py-1.5 rounded-full flex items-center shadow-sm">
+                                <div class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></div>
+                                Ganador/Empate: 1 pts
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
                             <thead>
-                                <tr class="bg-slate-900 text-slate-400 text-xs uppercase tracking-wider">
-                                    <th class="p-4 w-16 text-center">Pos</th>
-                                    <th class="p-4">Participante</th>
-                                    <th class="p-4 text-center">Exactos</th>
-                                    <th class="p-4 text-center">Parciales</th>
-                                    <th class="p-4 text-center font-bold text-emerald-400">Puntos</th>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider w-16 text-center">Pos</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Amigo / Participante</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Puntos Totales</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Exactos (3P)</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Ganador/Empate (1P)</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Fallados</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center w-32">Efectividad</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-700/50">
+                            <tbody class="divide-y divide-gray-100">
             `;
 
-            ranking.forEach((user, index) => {
-                let badge = '';
-                if (index === 0) badge = '<i class="fa-solid fa-medal text-yellow-400 text-xl drop-shadow-md"></i>';
-                else if (index === 1) badge = '<i class="fa-solid fa-medal text-slate-300 text-xl"></i>';
-                else if (index === 2) badge = '<i class="fa-solid fa-medal text-amber-700 text-xl"></i>';
-                else badge = `<span class="text-slate-500 font-bold">${index + 1}</span>`;
+            if (ranking.length === 0) {
+                html += `<tr><td colspan="7" class="py-10 text-center text-gray-400">Aún no hay participantes registrados.</td></tr>`;
+            } else {
+                ranking.forEach((user, index) => {
+                    let badgeClass = "bg-gray-100 border-gray-200 text-gray-600";
+                    if (index === 0) badgeClass = "bg-[#fefce8] border-[#fde047] text-[#854d0e] shadow-sm";
+                    else if (index === 1) badgeClass = "bg-gray-100 border-gray-300 text-gray-700 shadow-sm";
+                    else if (index === 2) badgeClass = "bg-orange-50 border-orange-200 text-orange-800 shadow-sm";
 
-                const rowClass = user.id === activeUserId ? 'bg-slate-700/50 border-l-4 border-emerald-500' : 'hover:bg-slate-800/80';
-                
-                const avatar = user.photoURL 
-                    ? `<img src="${user.photoURL}" class="w-8 h-8 rounded-full inline-block mr-3 border border-slate-600">` 
-                    : `<div class="w-8 h-8 rounded-full inline-flex items-center justify-center bg-emerald-700 text-white font-bold mr-3">${user.name.charAt(0).toUpperCase()}</div>`;
+                    const badge = `<div class="w-8 h-8 rounded-full border ${badgeClass} flex items-center justify-center font-bold text-sm mx-auto">${index + 1}</div>`;
+                    const avatar = user.photoURL 
+                        ? `<img src="${user.photoURL}" class="w-8 h-8 rounded-full inline-block mr-3 border border-gray-200 shadow-sm">` 
+                        : `<div class="w-8 h-8 rounded-full inline-flex items-center justify-center bg-gray-200 text-gray-600 font-bold mr-3 shadow-sm">${user.name.charAt(0).toUpperCase()}</div>`;
 
-                html += `
-                    <tr class="${rowClass} transition-colors">
-                        <td class="p-4 text-center">${badge}</td>
-                        <td class="p-4 font-semibold text-slate-200 flex items-center">${avatar} ${user.name}</td>
-                        <td class="p-4 text-center text-slate-400">${user.exact}</td>
-                        <td class="p-4 text-center text-slate-400">${user.partial}</td>
-                        <td class="p-4 text-center font-bold text-xl text-emerald-400">${user.totalPoints}</td>
-                    </tr>
-                `;
-            });
+                    html += `
+                        <tr class="hover:bg-gray-50 transition-colors ${user.id === activeUserId ? 'bg-green-50/50' : ''}">
+                            <td class="py-4 px-6 text-center align-middle">${badge}</td>
+                            <td class="py-4 px-6 font-semibold text-gray-700 flex items-center align-middle">${avatar} ${user.name}</td>
+                            <td class="py-4 px-6 text-center font-bold text-gray-900 text-lg align-middle">${user.totalPoints} pts</td>
+                            <td class="py-4 px-6 text-center text-gray-500 font-medium align-middle">${user.exact}</td>
+                            <td class="py-4 px-6 text-center text-gray-500 font-medium align-middle">${user.partial}</td>
+                            <td class="py-4 px-6 text-center text-gray-400 font-medium align-middle">${user.fallados}</td>
+                            <td class="py-4 px-6 text-center align-middle">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-grow h-2 rounded-full progress-bar-bg overflow-hidden">
+                                        <div class="h-full progress-bar-fill ${user.efectividad > 50 ? 'bg-green-500' : 'bg-gray-400'}" style="width: ${user.efectividad}%"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-500 w-8 text-right">${user.efectividad}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
 
             html += `</tbody></table></div></div>`;
             container.innerHTML = html;
@@ -405,18 +419,29 @@
             const container = document.getElementById('content-resultados');
             const isAdmin = adminEmails.includes(activeUserEmail);
             
+            let html = `
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Resultados Reales</h2>
+                        <p class="text-gray-500 text-sm">Marcadores oficiales de los partidos disputados.</p>
+                    </div>
+                </div>
+            `;
+
+            if (isAdmin) {
+                html += `
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-sm text-blue-800 mb-6 flex items-start shadow-sm">
+                    <i class="fa-solid fa-user-shield mt-1 mr-3 text-blue-500 text-lg"></i>
+                    <p><strong>Panel de Admin:</strong> Ingresa los resultados oficiales para calcular los puntos, o bloquea partidos para evitar que cambien pronósticos.</p>
+                </div>`;
+            }
+
             if (globalData.matches.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-calendar-xmark text-4xl mb-3"></i><p>No hay partidos registrados. El administrador debe crearlos.</p></div>`;
+                container.innerHTML = html + `<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><i class="fa-solid fa-calendar-xmark text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">No hay partidos registrados.</p></div>`;
                 return;
             }
 
-            let html = `<div class="space-y-4">
-                ${isAdmin ? `
-                <div class="bg-blue-900/30 border border-blue-800 p-4 rounded-lg text-sm text-blue-200 mb-6 flex items-start">
-                    <i class="fa-solid fa-user-shield mt-1 mr-3 text-blue-400"></i>
-                    <p><strong>Panel de Administrador:</strong> Ingresa los resultados reales. Si cometes un error en un partido finalizado, puedes modificarlo directamente o presionar el botón "Reabrir Partido" para desvincular el resultado.</p>
-                </div>` : ''}
-            `;
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
 
             globalData.matches.forEach(match => {
                 const sA = match.scoreA !== null ? match.scoreA : '';
@@ -425,41 +450,41 @@
                 const isLocked = match.isLocked || false;
 
                 html += `
-                    <div class="bg-slate-800 p-4 rounded-xl shadow border ${isLocked ? 'border-orange-900/50' : 'border-slate-700'} relative overflow-hidden">
-                        ${isFinished ? '<div class="absolute top-0 right-0 bg-emerald-600 text-xs px-2 py-1 rounded-bl-lg font-semibold shadow-sm">FINALIZADO</div>' : (isLocked ? '<div class="absolute top-0 right-0 bg-orange-600 text-xs px-2 py-1 rounded-bl-lg font-semibold shadow-sm"><i class="fa-solid fa-lock mr-1"></i> BLOQUEADO</div>' : '')}
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border ${isFinished ? 'border-gray-200' : (isLocked ? 'border-orange-200' : 'border-gray-200')} relative overflow-hidden">
+                        ${isFinished ? '<div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-xs px-3 py-1 rounded-bl-lg font-bold border-b border-l border-gray-200">FINALIZADO</div>' : (isLocked ? '<div class="absolute top-0 right-0 bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-bl-lg font-bold border-b border-l border-orange-200"><i class="fa-solid fa-lock mr-1"></i> BLOQUEADO</div>' : '')}
                         
-                        <div class="text-center text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">${match.stage} - ${match.date}</div>
+                        <div class="text-center text-xs text-gray-400 mb-4 font-bold uppercase tracking-wider">${match.stage} • ${match.date}</div>
                         
-                        <div class="flex items-center justify-center space-x-2 md:space-x-6">
-                            <div class="flex-1 text-right font-bold text-lg text-slate-200 truncate pr-2">${match.teamA}</div>
+                        <div class="flex items-center justify-between">
+                            <div class="w-1/3 text-right font-bold text-lg text-gray-800 truncate pr-2">${match.teamA}</div>
                             
-                            <div class="flex items-center space-x-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                            <div class="w-1/3 flex items-center justify-center space-x-2">
                                 ${isAdmin ? `
-                                <input type="number" id="res_${match.id}_A" value="${sA}" class="w-12 h-10 bg-slate-800 text-white text-center font-bold text-xl rounded focus:ring-2 focus:ring-emerald-500 outline-none" min="0">
-                                <span class="text-slate-500 font-bold">-</span>
-                                <input type="number" id="res_${match.id}_B" value="${sB}" class="w-12 h-10 bg-slate-800 text-white text-center font-bold text-xl rounded focus:ring-2 focus:ring-emerald-500 outline-none" min="0">
+                                <input type="number" id="res_${match.id}_A" value="${sA}" class="w-12 h-12 bg-gray-50 border border-gray-300 text-gray-900 text-center font-bold text-xl rounded-lg focus:ring-2 focus:ring-green-500 outline-none" min="0">
+                                <span class="text-gray-400 font-bold">-</span>
+                                <input type="number" id="res_${match.id}_B" value="${sB}" class="w-12 h-12 bg-gray-50 border border-gray-300 text-gray-900 text-center font-bold text-xl rounded-lg focus:ring-2 focus:ring-green-500 outline-none" min="0">
                                 ` : `
-                                <div class="w-12 h-10 flex items-center justify-center bg-slate-800 text-white font-bold text-xl rounded">${sA}</div>
-                                <span class="text-slate-500 font-bold">-</span>
-                                <div class="w-12 h-10 flex items-center justify-center bg-slate-800 text-white font-bold text-xl rounded">${sB}</div>
+                                <div class="w-12 h-12 flex items-center justify-center bg-gray-100 border border-gray-200 text-gray-800 font-bold text-xl rounded-lg shadow-inner">${sA !== '' ? sA : '-'}</div>
+                                <span class="text-gray-400 font-bold">-</span>
+                                <div class="w-12 h-12 flex items-center justify-center bg-gray-100 border border-gray-200 text-gray-800 font-bold text-xl rounded-lg shadow-inner">${sB !== '' ? sB : '-'}</div>
                                 `}
                             </div>
                             
-                            <div class="flex-1 text-left font-bold text-lg text-slate-200 truncate pl-2">${match.teamB}</div>
+                            <div class="w-1/3 text-left font-bold text-lg text-gray-800 truncate pl-2">${match.teamB}</div>
                         </div>
 
                         ${isAdmin ? `
-                        <div class="mt-4 flex justify-center space-x-3 border-t border-slate-700/50 pt-4">
-                            <button onclick="saveResult('${match.id}')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-sm font-semibold rounded-lg transition shadow-md flex items-center text-emerald-400">
-                                <i class="fa-solid fa-save mr-2"></i> ${isFinished ? 'Modificar Final' : 'Guardar Final'}
+                        <div class="mt-5 flex justify-center gap-2 border-t border-gray-100 pt-4">
+                            <button onclick="saveResult('${match.id}')" class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-sm font-semibold rounded-lg transition shadow-sm text-green-700">
+                                <i class="fa-solid fa-floppy-disk mr-2"></i> Guardar
                             </button>
                             ${isFinished ? `
-                            <button onclick="reopenMatch('${match.id}')" class="px-4 py-2 bg-red-900/40 hover:bg-red-900/70 text-red-400 text-sm font-semibold rounded-lg transition shadow-md flex items-center border border-red-700/50">
-                                <i class="fa-solid fa-folder-open mr-2"></i> Reabrir Partido
+                            <button onclick="clearResult('${match.id}')" class="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-semibold rounded-lg transition shadow-sm">
+                                <i class="fa-solid fa-rotate-left"></i> Reabrir
                             </button>
                             ` : ''}
-                            <button onclick="toggleLock('${match.id}', ${isLocked})" class="px-4 py-2 ${isLocked ? 'bg-orange-900/50 hover:bg-orange-900/80 text-orange-400' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'} text-sm font-semibold rounded-lg transition shadow-md flex items-center border border-slate-600">
-                                <i class="fa-solid ${isLocked ? 'fa-unlock' : 'fa-lock'} mr-2"></i> ${isLocked ? 'Desbloquear Pronósticos' : 'Bloquear Pronósticos'}
+                            <button onclick="toggleLock('${match.id}', ${isLocked})" class="px-4 py-2 bg-white border ${isLocked ? 'border-gray-300 text-gray-600 hover:bg-gray-50' : 'border-orange-200 text-orange-600 hover:bg-orange-50'} text-sm font-semibold rounded-lg transition shadow-sm">
+                                <i class="fa-solid ${isLocked ? 'fa-unlock' : 'fa-lock'}"></i>
                             </button>
                         </div>
                         ` : ''}
@@ -476,12 +501,12 @@
 
             if (!activeUserId) {
                 container.innerHTML = `
-                    <div class="bg-slate-800 border border-emerald-600/50 p-8 rounded-xl text-center shadow-lg">
-                        <i class="fa-brands fa-google text-6xl text-emerald-500 mb-4 drop-shadow-md"></i>
-                        <h2 class="text-2xl font-bold text-white mb-2">Inicia Sesión</h2>
-                        <p class="text-slate-300 mb-6">Para guardar tus pronósticos, debes iniciar sesión con tu cuenta de Google.</p>
-                        <button onclick="loginWithGoogle()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center mx-auto">
-                            <i class="fa-brands fa-google mr-2"></i> Entrar con Google
+                    <div class="bg-white border border-gray-200 p-10 rounded-2xl text-center shadow-sm max-w-lg mx-auto mt-10">
+                        <i class="fa-brands fa-google text-5xl text-gray-400 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Identifícate</h2>
+                        <p class="text-gray-500 mb-8">Debes iniciar sesión para cargar tus pronósticos y competir con tus amigos.</p>
+                        <button onclick="loginWithGoogle()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 rounded-xl transition shadow-sm flex items-center justify-center mx-auto w-full">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 mr-3" alt="Google"> Entrar con Google
                         </button>
                     </div>
                 `;
@@ -489,25 +514,20 @@
             }
 
             if (globalData.matches.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-futbol text-4xl mb-3"></i><p>No hay partidos programados todavía.</p></div>`;
+                container.innerHTML = `<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><i class="fa-solid fa-futbol text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">No hay partidos programados todavía.</p></div>`;
                 return;
             }
 
-            const activeUser = globalData.users.find(u => u.id === activeUserId);
-            if (!activeUser) return;
+            const isAdmin = adminEmails.includes(activeUserEmail);
 
             let html = `
-                <div class="mb-6 bg-emerald-900/20 border border-emerald-800 p-4 rounded-lg flex items-center">
-                    ${activeUser.photoURL 
-                        ? `<img src="${activeUser.photoURL}" class="h-10 w-10 rounded-full mr-4 shadow-md border-2 border-emerald-500">`
-                        : `<div class="bg-emerald-600 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold text-white mr-4 shadow-md">${activeUser.name.charAt(0).toUpperCase()}</div>`
-                    }
+                <div class="mb-6 flex justify-between items-end">
                     <div>
-                        <h3 class="text-white font-bold">Pronósticos de <span class="text-emerald-400">${activeUser.name}</span></h3>
-                        <p class="text-sm text-slate-400">Guarda tus resultados antes de que comiencen los partidos.</p>
+                        <h2 class="text-2xl font-bold text-gray-800">Mis Pronósticos</h2>
+                        <p class="text-gray-500 text-sm">Anota tus resultados antes de que comiencen los juegos.</p>
                     </div>
                 </div>
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             `;
 
             globalData.matches.forEach(match => {
@@ -520,29 +540,44 @@
                 const isLocked = match.isLocked || false;
                 const cannotEdit = isFinished || isLocked;
 
-                const borderClass = hasPred ? 'border-emerald-500/50 bg-slate-800 shadow-[0_0_10px_rgba(16,185,129,0.1)]' : 'border-slate-700 bg-slate-800';
+                const borderClass = hasPred ? 'border-green-300 ring-1 ring-green-100 bg-white' : 'border-gray-200 bg-white';
 
                 html += `
-                    <div class="p-4 rounded-xl border ${borderClass} relative transition-all">
-                        ${cannotEdit ? `<div class="absolute inset-0 bg-slate-900/70 z-10 flex items-center justify-center rounded-xl backdrop-blur-[2px]"><span class="${isFinished ? 'bg-red-600 border-red-500' : 'bg-orange-600 border-orange-500'} text-white px-3 py-1 rounded font-bold text-sm shadow-lg border"><i class="fa-solid fa-lock mr-2"></i>${isFinished ? 'PARTIDO CERRADO' : 'PRONÓSTICOS BLOQUEADOS'}</span></div>` : ''}
+                    <div class="p-5 rounded-2xl border shadow-sm ${borderClass} relative transition-all">
                         
-                        <div class="text-center text-xs text-slate-400 mb-2 uppercase tracking-wide">${match.stage}</div>
+                        ${cannotEdit ? `
+                        <div class="absolute inset-0 bg-white/80 z-10 flex items-center justify-center rounded-2xl backdrop-blur-[1px]">
+                            <div class="text-center">
+                                <span class="${isFinished ? 'bg-gray-100 text-gray-600 border-gray-200' : 'bg-orange-50 text-orange-600 border-orange-200'} px-4 py-2 rounded-lg font-bold text-sm shadow-sm border inline-flex items-center">
+                                    <i class="fa-solid fa-lock mr-2"></i>${isFinished ? 'PARTIDO FINALIZADO' : 'TIEMPO AGOTADO'}
+                                </span>
+                                ${isAdmin ? `
+                                    <div class="mt-3">
+                                        <button onclick="toggleLock('${match.id}', true)" class="text-xs bg-white text-gray-600 px-3 py-1.5 rounded-lg shadow-sm border border-gray-300 hover:bg-gray-50 transition">
+                                            <i class="fa-solid fa-unlock mr-1"></i> Desbloquear (Admin)
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>` : ''}
                         
-                        <div class="flex justify-between items-center px-2 md:px-8">
-                            <div class="text-right font-bold w-1/3 text-lg md:text-xl truncate text-slate-200">${match.teamA}</div>
+                        <div class="text-center text-xs text-gray-400 mb-4 font-bold uppercase tracking-wider">${match.stage}</div>
+                        
+                        <div class="flex justify-between items-center px-2">
+                            <div class="text-right font-bold w-1/3 text-lg truncate text-gray-800">${match.teamA}</div>
                             
                             <div class="w-1/3 flex justify-center items-center space-x-2">
-                                <input type="number" id="pred_${match.id}_A" value="${sA}" ${cannotEdit ? 'disabled' : ''} class="w-12 h-12 bg-slate-900 border border-slate-600 text-white text-center font-bold text-xl rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition disabled:opacity-50" min="0">
-                                <span class="text-slate-500 font-bold">-</span>
-                                <input type="number" id="pred_${match.id}_B" value="${sB}" ${cannotEdit ? 'disabled' : ''} class="w-12 h-12 bg-slate-900 border border-slate-600 text-white text-center font-bold text-xl rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition disabled:opacity-50" min="0">
+                                <input type="number" id="pred_${match.id}_A" value="${sA}" ${cannotEdit ? 'disabled' : ''} class="w-12 h-12 bg-gray-50 border border-gray-300 text-gray-900 text-center font-bold text-xl rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition disabled:opacity-50" min="0">
+                                <span class="text-gray-400 font-bold">-</span>
+                                <input type="number" id="pred_${match.id}_B" value="${sB}" ${cannotEdit ? 'disabled' : ''} class="w-12 h-12 bg-gray-50 border border-gray-300 text-gray-900 text-center font-bold text-xl rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition disabled:opacity-50" min="0">
                             </div>
                             
-                            <div class="text-left font-bold w-1/3 text-lg md:text-xl truncate text-slate-200">${match.teamB}</div>
+                            <div class="text-left font-bold w-1/3 text-lg truncate text-gray-800">${match.teamB}</div>
                         </div>
 
-                        <div class="mt-4 text-center">
-                            <button onclick="savePrediction('${match.id}')" ${cannotEdit ? 'disabled' : ''} class="px-6 py-2 ${hasPred ? 'bg-slate-700 hover:bg-slate-600' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-sm font-bold rounded-full transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed relative z-20">
-                                ${hasPred ? '<i class="fa-solid fa-check text-emerald-400 mr-2"></i>Actualizar' : 'Guardar Pronóstico'}
+                        <div class="mt-5 text-center">
+                            <button onclick="savePrediction('${match.id}')" ${cannotEdit ? 'disabled' : ''} class="w-full py-2.5 ${hasPred ? 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200' : 'bg-[#1a472a] hover:bg-[#12331e] text-white shadow-md'} text-sm font-bold rounded-xl transition-colors disabled:opacity-50 relative z-0">
+                                ${hasPred ? '<i class="fa-solid fa-check text-green-600 mr-2"></i>Guardado' : 'Guardar Pronóstico'}
                             </button>
                         </div>
                     </div>
@@ -553,123 +588,25 @@
             container.innerHTML = html;
         }
 
-        window.toggleLock = async function(matchId, currentState) {
-            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) { 
-                showToast("Acceso denegado: Solo el administrador puede bloquear partidos.", "error"); 
-                return; 
-            }
-
-            try {
-                const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId);
-                await updateDoc(matchRef, { isLocked: !currentState });
-                showToast(!currentState ? "Pronósticos bloqueados" : "Pronósticos desbloqueados", "warning");
-            } catch (error) {
-                console.error("Error al cambiar estado:", error);
-                showToast("Error al actualizar el estado", "error");
-            }
-        };
-
-        window.saveResult = async function(matchId) {
-            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) { 
-                showToast("Acceso denegado", "error"); 
-                return; 
-            }
-
-            const valA = document.getElementById(`res_${matchId}_A`).value;
-            const valB = document.getElementById(`res_${matchId}_B`).value;
-
-            const scoreA = valA !== '' ? parseInt(valA) : null;
-            const scoreB = valB !== '' ? parseInt(valB) : null;
-
-            try {
-                const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId);
-                await updateDoc(matchRef, { scoreA, scoreB });
-                showToast("Resultado oficial actualizado");
-            } catch (error) {
-                console.error("Error al guardar resultado:", error);
-                showToast("Error al guardar el resultado", "error");
-            }
-        };
-
-        window.reopenMatch = async function(matchId) {
-            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) { 
-                showToast("Acceso denegado: Solo administradores.", "error"); 
-                return; 
-            }
-
-            try {
-                const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId);
-                // Restablecemos los marcadores a null y desbloqueamos los pronósticos
-                await updateDoc(matchRef, { 
-                    scoreA: null, 
-                    scoreB: null,
-                    isLocked: false 
-                });
-                showToast("Partido reabierto y pronósticos desbloqueados", "success");
-            } catch (error) {
-                console.error("Error al reabrir partido:", error);
-                showToast("Error al reabrir el partido", "error");
-            }
-        };
-
-        window.savePrediction = async function(matchId) {
-            if (!auth.currentUser) return;
-            if (!activeUserId) {
-                showToast("Selecciona tu perfil primero", "warning");
-                return;
-            }
-
-            const match = globalData.matches.find(m => m.id === matchId);
-            if (match && (match.isLocked || match.scoreA !== null)) {
-                 showToast("Este partido ya está bloqueado para pronósticos", "error");
-                 return;
-            }
-
-            const valA = document.getElementById(`pred_${matchId}_A`).value;
-            const valB = document.getElementById(`pred_${matchId}_B`).value;
-
-            if (valA === '' || valB === '') {
-                showToast("Ingresa ambos marcadores", "warning");
-                return;
-            }
-
-            try {
-                const predId = `${matchId}_${activeUserId}`;
-                const predRef = doc(db, 'artifacts', appId, 'public', 'data', 'predictions', predId);
-                
-                await setDoc(predRef, {
-                    matchId: matchId,
-                    userId: activeUserId,
-                    scoreA: parseInt(valA),
-                    scoreB: parseInt(valB),
-                    timestamp: Date.now()
-                }, { merge: true }); 
-                
-                showToast("Pronóstico guardado exitosamente");
-            } catch (error) {
-                console.error("Error saving prediction:", error);
-                showToast("Error guardando pronóstico", "error");
-            }
-        };
-
         function renderAjustes() {
             const container = document.getElementById('content-ajustes');
+            
             let authSection = '';
             
             if (activeUserId) {
                 const activeUser = globalData.users.find(u => u.id === activeUserId);
                 if (activeUser) {
                     authSection = `
-                        <div class="bg-slate-800 p-6 rounded-xl border border-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.1)] text-center">
+                        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-center">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 text-left border-b border-gray-100 pb-2">Mi Perfil</h3>
                             ${activeUser.photoURL 
-                                ? `<img src="${activeUser.photoURL}" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-emerald-500 shadow-lg">`
-                                : `<div class="w-20 h-20 rounded-full mx-auto mb-4 bg-emerald-600 flex items-center justify-center text-3xl text-white font-bold shadow-lg">${activeUser.name.charAt(0).toUpperCase()}</div>`
+                                ? `<img src="${activeUser.photoURL}" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-gray-100 shadow-sm">`
+                                : `<div class="w-20 h-20 rounded-full mx-auto mb-4 bg-gray-100 flex items-center justify-center text-3xl text-gray-500 font-bold shadow-sm">${activeUser.name.charAt(0).toUpperCase()}</div>`
                             }
-                            <h2 class="text-xl font-bold text-white mb-1">${activeUser.name}</h2>
-                            <p class="text-sm text-slate-400 mb-2">${activeUser.email}</p>
-                            ${adminEmails.includes(activeUserEmail) ? '<span class="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded-full mb-4"><i class="fa-solid fa-shield mr-1"></i> Administrador</span>' : '<span class="inline-block bg-slate-600 text-slate-300 text-xs px-2 py-1 rounded-full mb-4">Participante</span>'}
-                            <br>
-                            <button onclick="logout()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-full transition flex items-center justify-center mx-auto">
+                            <h2 class="text-xl font-bold text-gray-800 mb-1">${activeUser.name}</h2>
+                            <p class="text-sm text-gray-500 mb-4">${activeUser.email}</p>
+                            
+                            <button onclick="logout()" class="bg-white border border-gray-300 hover:bg-red-50 text-red-600 font-semibold py-2 px-6 rounded-xl transition flex items-center justify-center mx-auto shadow-sm w-full">
                                 <i class="fa-solid fa-right-from-bracket mr-2"></i> Cerrar Sesión
                             </button>
                         </div>
@@ -677,203 +614,95 @@
                 }
             } else {
                 authSection = `
-                    <div class="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-md text-center">
-                        <i class="fa-brands fa-google text-5xl text-slate-400 mb-4"></i>
-                        <h2 class="text-xl font-bold text-white mb-2">Identificación</h2>
-                        <p class="text-sm text-slate-400 mb-6">Inicia sesión con tu cuenta de Google para participar en la quiniela.</p>
-                        
-                        <button onclick="loginWithGoogle()" class="w-full md:w-auto bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-6 rounded-lg transition flex items-center justify-center mx-auto shadow-md">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 mr-3" alt="Google">
-                            Continuar con Google
+                    <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm text-center">
+                        <i class="fa-brands fa-google text-5xl text-gray-300 mb-4"></i>
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">Identificación</h2>
+                        <p class="text-sm text-gray-500 mb-6">Inicia sesión para participar.</p>
+                        <button onclick="loginWithGoogle()" class="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 rounded-xl transition flex items-center justify-center mx-auto shadow-sm">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 mr-3" alt="Google"> Entrar con Google
                         </button>
                     </div>
                 `;
             }
 
             container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Participantes y Ajustes</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                     ${authSection}
 
                     ${(activeUserId && adminEmails.includes(activeUserEmail)) ? `
-                    <div class="bg-slate-800 p-6 rounded-xl border border-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                        <div class="flex items-center mb-4 text-blue-400">
-                            <i class="fa-solid fa-calendar-plus text-2xl mr-3"></i>
-                            <h2 class="text-xl font-bold text-white">Panel de Control (Admin)</h2>
+                    <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
+                        <div class="flex items-center mb-4 text-blue-800">
+                            <i class="fa-solid fa-screwdriver-wrench text-xl mr-3"></i>
+                            <h3 class="text-lg font-bold">Administrar Partidos</h3>
                         </div>
-                        <p class="text-sm text-slate-400 mb-4">Crea nuevos encuentros para el torneo.</p>
+                        <p class="text-sm text-blue-600/80 mb-5">Agrega nuevos encuentros al torneo.</p>
                         
-                        <div class="space-y-3">
-                            <input type="text" id="newMatchStage" placeholder="Fase (Ej: Grupo A, Octavos...)" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white">
-                            <input type="date" id="newMatchDate" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white">
+                        <div class="space-y-3 bg-white p-4 rounded-xl border border-blue-100">
+                            <input type="text" id="newMatchStage" placeholder="Fase (Ej: Grupo A, Final)" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                            <input type="date" id="newMatchDate" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                             
                             <div class="flex space-x-2">
-                                <input type="text" id="newMatchTeamA" placeholder="Equipo Local" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-white text-center">
-                                <span class="text-slate-500 flex items-center font-bold">vs</span>
-                                <input type="text" id="newMatchTeamB" placeholder="Equipo Visitante" class="w-1/2 bg-slate-900 border border-slate-600 rounded p-2 text-white text-center">
+                                <input type="text" id="newMatchTeamA" placeholder="Local" class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-800 text-center focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <span class="text-gray-400 flex items-center font-bold text-sm">vs</span>
+                                <input type="text" id="newMatchTeamB" placeholder="Visitante" class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-800 text-center focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                             </div>
 
-                            <button onclick="createMatch()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded mt-4 transition flex items-center justify-center">
-                                <i class="fa-solid fa-plus mr-2"></i> Guardar Partido
+                            <button onclick="createMatch()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg mt-2 transition flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-plus mr-2"></i> Crear Partido
                             </button>
-                            
-                            ${globalData.matches.length === 0 ? `
-                            <button onclick="loadSampleMatches()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm py-2 rounded mt-2 transition border border-slate-600">
-                                Cargar Partidos de Prueba
-                            </button>
-                            ` : ''}
                         </div>
                     </div>
                     ` : `
-                    ${activeUserId ? `
-                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center justify-center text-center opacity-70">
-                         <i class="fa-solid fa-shield-halved text-5xl text-slate-600 mb-4"></i>
-                         <h3 class="text-xl font-bold text-slate-300">Zona Restringida</h3>
-                         <p class="text-slate-500 text-sm mt-2 max-w-xs">Solo los administradores pueden añadir partidos o modificar los resultados del torneo.</p>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center text-center h-full">
+                         <i class="fa-solid fa-shield-halved text-4xl text-gray-300 mb-4"></i>
+                         <h3 class="text-lg font-bold text-gray-800">Zona Restringida</h3>
+                         <p class="text-gray-500 text-sm mt-2 max-w-xs">Contacta al administrador si faltan partidos por agregar.</p>
                     </div>
-                    ` : ''}
                     `}
                 </div>
             `;
         }
 
-        window.loginWithGoogle = async function() {
-            try {
-                document.getElementById('loadingOverlay').classList.remove('hidden');
-                document.querySelector('#loadingOverlay p').innerText = "Iniciando sesión con Google...";
-                await signInWithPopup(auth, googleProvider);
-            } catch (error) {
-                console.error("Error en login con Google:", error);
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                if (error.code === 'auth/popup-closed-by-user') {
-                    showToast("Inicio de sesión cancelado", "warning");
-                } else if (error.code === 'auth/popup-blocked') {
-                     showToast("El navegador bloqueó la ventana emergente de login. Por favor, permite los popups para este sitio.", "error");
-                } else {
-                    showToast("Error al iniciar sesión: " + error.message, "error");
-                }
-            }
-        };
-
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                showToast("Sesión cerrada");
-            } catch (error) {
-                console.error("Error cerrando sesión:", error);
-            }
-        };
-
-        window.createMatch = async function() {
-            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) {
-                showToast("Acceso denegado", "error"); 
-                return; 
-            }
-            
-            const stage = document.getElementById('newMatchStage').value.trim();
-            const date = document.getElementById('newMatchDate').value;
-            const teamA = document.getElementById('newMatchTeamA').value.trim();
-            const teamB = document.getElementById('newMatchTeamB').value.trim();
-
-            if (!stage || !date || !teamA || !teamB) {
-                showToast("Todos los campos son obligatorios", "warning");
-                return;
-            }
-
-            try {
-                const colRef = getCollectionRef('matches');
-                await addDoc(colRef, {
-                    stage,
-                    date,
-                    teamA,
-                    teamB,
-                    scoreA: null,
-                    scoreB: null,
-                    isLocked: false,
-                    createdAt: Date.now()
-                });
-                
-                document.getElementById('newMatchTeamA').value = '';
-                document.getElementById('newMatchTeamB').value = '';
-                showToast("Partido creado exitosamente");
-            } catch(e) {
-                console.error(e);
-                showToast("Error al crear partido", "error");
-            }
-        };
-
-        window.loadSampleMatches = async function() {
+        // ==========================================
+        // FUNCIONES FIREBASE ACCIONES
+        // ==========================================
+        window.toggleLock = async function(matchId, currentState) {
             if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) return;
-            const samples = [
-                { stage: "Juego Inaugural", date: "2026-06-11", teamA: "México", teamB: "Por Definir" },
-                { stage: "Grupo B", date: "2026-06-12", teamA: "Canadá", teamB: "Por Definir" },
-                { stage: "Grupo D", date: "2026-06-12", teamA: "EE.UU", teamB: "Por Definir" },
-                { stage: "Grupo F", date: "2026-06-15", teamA: "Argentina", teamB: "Alemania" },
-                { stage: "Grupo H", date: "2026-06-16", teamA: "Brasil", teamB: "España" }
-            ];
-
-            try {
-                const colRef = getCollectionRef('matches');
-                for (let match of samples) {
-                    await addDoc(colRef, {
-                        ...match,
-                        scoreA: null,
-                        scoreB: null,
-                        isLocked: false,
-                        createdAt: Date.now()
-                    });
-                }
-                showToast("Partidos de prueba cargados");
-            } catch(e) {
-                console.error(e);
-                showToast("Error al cargar partidos", "error");
-            }
+            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId), { isLocked: !currentState }); showToast(!currentState ? "Partido bloqueado" : "Partido desbloqueado", "warning"); } catch (e) { showToast("Error", "error"); }
         };
+        window.clearResult = async function(matchId) {
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) return;
+            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId), { scoreA: null, scoreB: null, isLocked: false }); showToast("Partido reabierto"); } catch (e) { showToast("Error", "error"); }
+        };
+        window.saveResult = async function(matchId) {
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) return;
+            const sA = document.getElementById(`res_${matchId}_A`).value; const sB = document.getElementById(`res_${matchId}_B`).value;
+            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'matches', matchId), { scoreA: sA !== '' ? parseInt(sA) : null, scoreB: sB !== '' ? parseInt(sB) : null }); showToast("Resultado guardado"); } catch (e) { showToast("Error", "error"); }
+        };
+        window.savePrediction = async function(matchId) {
+            if (!auth.currentUser || !activeUserId) return;
+            const match = globalData.matches.find(m => m.id === matchId);
+            if (match && (match.isLocked || match.scoreA !== null)) { showToast("Partido cerrado", "error"); return; }
+            const vA = document.getElementById(`pred_${matchId}_A`).value; const vB = document.getElementById(`pred_${matchId}_B`).value;
+            if (vA === '' || vB === '') { showToast("Ingresa marcadores", "warning"); return; }
+            try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'predictions', `${matchId}_${activeUserId}`), { matchId, userId: activeUserId, scoreA: parseInt(vA), scoreB: parseInt(vB), timestamp: Date.now() }, { merge: true }); showToast("Guardado"); } catch (e) { showToast("Error", "error"); }
+        };
+        window.createMatch = async function() {
+            if (!auth.currentUser || !adminEmails.includes(activeUserEmail)) return;
+            const stage = document.getElementById('newMatchStage').value.trim(); const date = document.getElementById('newMatchDate').value;
+            const tA = document.getElementById('newMatchTeamA').value.trim(); const tB = document.getElementById('newMatchTeamB').value.trim();
+            if (!stage || !date || !tA || !tB) { showToast("Campos vacíos", "warning"); return; }
+            try { await addDoc(getCollectionRef('matches'), { stage, date, teamA: tA, teamB: tB, scoreA: null, scoreB: null, isLocked: false, createdAt: Date.now() }); document.getElementById('newMatchTeamA').value=''; document.getElementById('newMatchTeamB').value=''; showToast("Creado"); } catch(e) { showToast("Error", "error"); }
+        };
+        window.loginWithGoogle = async function() {
+            try { document.getElementById('loadingOverlay').classList.remove('hidden'); await signInWithPopup(auth, googleProvider); } catch (e) { document.getElementById('loadingOverlay').classList.add('hidden'); }
+        };
+        window.logout = async function() { try { await signOut(auth); showToast("Sesión cerrada"); } catch (e) {} };
 
-        function renderNormas() {
-            const container = document.getElementById('content-normas');
-            container.innerHTML = `
-                <div class="bg-slate-800 p-8 rounded-xl shadow border border-slate-700 text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                    <h2 class="text-3xl font-bold text-white mb-6 text-center">🏆 Reglas de la Quiniela</h2>
-                    <p class="mb-6 text-center text-lg">El sistema de puntuación es automático y se basa en los siguientes criterios al comparar tu pronóstico con el resultado final del partido:</p>
-
-                    <div class="space-y-6">
-                        <div class="bg-emerald-900/30 p-4 rounded-lg border border-emerald-800 flex items-start">
-                            <div class="bg-emerald-600 rounded-full h-10 w-10 min-w-[40px] flex items-center justify-center font-bold text-white text-xl mr-4">3</div>
-                            <div>
-                                <h3 class="text-emerald-400 font-bold text-lg mb-1">Puntos por Marcador Exacto</h3>
-                                <p class="text-sm">Si aciertas la cantidad exacta de goles que marcó cada equipo. <br><em>Ejemplo: Pronosticas 2-1 y el resultado final es 2-1.</em></p>
-                            </div>
-                        </div>
-
-                        <div class="bg-yellow-900/30 p-4 rounded-lg border border-yellow-800 flex items-start">
-                            <div class="bg-yellow-600 rounded-full h-10 w-10 min-w-[40px] flex items-center justify-center font-bold text-white text-xl mr-4">1</div>
-                            <div>
-                                <h3 class="text-yellow-400 font-bold text-lg mb-1">Punto por Resultado (Ganador o Empate)</h3>
-                                <p class="text-sm">Si no aciertas el marcador exacto, pero sí aciertas qué equipo ganó, o si acertaste que terminaría en empate. <br><em>Ejemplo: Pronosticas 2-0 y el resultado final es 1-0 (Acertaste que ganaba el local).</em></p>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex items-start">
-                            <div class="bg-slate-700 rounded-full h-10 w-10 min-w-[40px] flex items-center justify-center font-bold text-white text-xl mr-4">0</div>
-                            <div>
-                                <h3 class="text-slate-400 font-bold text-lg mb-1">Puntos si fallas</h3>
-                                <p class="text-sm">Si el resultado es completamente diferente (gana el otro equipo o empatan y pusiste ganador). <br><em>Ejemplo: Pronosticas 1-0 y el resultado es 0-1.</em></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 pt-6 border-t border-slate-700 text-sm text-center">
-                        <i class="fa-solid fa-lock text-slate-500 mb-2 text-xl"></i>
-                        <p>Los pronósticos se bloquean automáticamente en cuanto el administrador ingresa un resultado en la pestaña correspondiente.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initApp();
-        });
-
+        window.addEventListener('DOMContentLoaded', () => initApp());
     </script>
 </body>
 </html>
